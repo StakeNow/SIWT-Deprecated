@@ -1,0 +1,72 @@
+{
+  "env":{
+    "node":true,
+    "jasmine":true,
+    "jest":true,
+    "es2020":true
+  },
+  "parser":"@typescript-eslint/parser",
+  "parserOptions":{
+    "ecmaVersion":2020,
+    "sourceType":"module"
+  },
+  "plugins":[
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "extends":[
+    "airbnb/base",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "prettier",
+    "plugin:prettier/recommended"
+  ],
+  "rules":{
+    "prettier/prettier":"warn",
+    "import/extensions":"off",
+    "import/no-cycle":[
+      0,
+      {
+        "ignoreExternal":true
+      }
+    ],
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define":[
+      "error",
+      {
+        "functions":false,
+        "classes":false,
+        "variables":true
+      }
+    ],
+    "global-require":"warn",
+    "import/no-unresolved":"warn",
+    "@typescript-eslint/explicit-function-return-type":"off",
+    "@typescript-eslint/explicit-module-boundary-types":"off",
+    "@typescript-eslint/no-explicit-any":"off",
+    "@typescript-eslint/no-non-null-assertion":"off",
+    "class-methods-use-this":"off",
+    "no-console":"off",
+    "lines-between-class-members":"off",
+    "no-unused-vars":"off",
+    "@typescript-eslint/no-unused-vars":"error",
+    "no-shadow": "off",
+    "@typescript-eslint/no-shadow": ["error"],
+    "import/prefer-default-export": "off",
+    "import/no-extraneous-dependencies": "off",
+    "no-new": "off"
+  },
+  "overrides":[
+    {
+      "files":[
+        "**/tests/*",
+        "*.test.*"
+      ],
+      "rules":{
+        "import/no-extraneous-dependencies":"off"
+      }
+    }
+  ]
+}
