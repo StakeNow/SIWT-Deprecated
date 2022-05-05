@@ -56,7 +56,11 @@
     "@typescript-eslint/no-shadow": ["error"],
     "import/prefer-default-export": "off",
     "import/no-extraneous-dependencies": "off",
-    "no-new": "off"
+    "no-new": "off",
+    "no-underscore-dangle": "off",
+    "no-undef": "warn",
+    "camelcase": "off",
+    "@typescript-eslint/no-var-requires": "off"
   },
   "overrides":[
     {

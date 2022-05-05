@@ -2,9 +2,9 @@ import { char2Bytes } from '@taquito/utils'
 import { always, join, pipe, prop } from 'ramda'
 
 import { TEZOS_SIGNED_MESSAGE_PREFIX } from '../constants'
-import { messagePayloadData, signInMessageData } from '../types'
+import { MessagePayloadData, SignInMessageData } from '../types'
 
-export const generateMessageData = ({ dappUrl, pkh }: signInMessageData) => ({
+export const generateMessageData = ({ dappUrl, pkh }: SignInMessageData) => ({
   dappUrl,
   timestamp: new Date().toISOString(),
   message: `${dappUrl} would like you to sign in with ${pkh}. 
@@ -17,7 +17,7 @@ export const constructSignPayload = ({ payload, pkh }: { payload: string; pkh: s
   sourceAddress: pkh,
 })
 
-export const packMessagePayload = (messageData: messagePayloadData) =>
+export const packMessagePayload = (messageData: MessagePayloadData): string =>
   pipe(
     always([
       TEZOS_SIGNED_MESSAGE_PREFIX,

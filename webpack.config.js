@@ -5,16 +5,16 @@ const path = require('path')
 const isProduction = process.env.NODE_ENV === 'production'
 
 const config  = {
-  entry: './src/index.js',
+  entry: './demo/ui/index.js',
   target: 'web',
   output: {
-    path: path.resolve(__dirname, './dist'),
+    path: path.resolve(__dirname, './dist/ui'),
     filename: 'main.js',
     clean: true,
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',
+      template: './demo/ui/index.html',
     }),
     new NodePolyfillPlugin(),
   ],

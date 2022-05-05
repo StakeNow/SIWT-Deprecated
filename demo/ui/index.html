@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sign In with Tezos Demo</title>
+  </head>
+  <body>
+    <div class="flex justify-center items-center h-screen bg-gradient-to-b from-sky-500 to-indigo-500 text-white">
+      <div class="text-center h-1/2 flex justify-around flex-col w-11/12 items-center">
+        <h1>Sign in with Tezos</h1>
+        <button class="w-36 connect-button py-4 px-6 snap-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-blue-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-full">Connect</button>
+        <div class="content-container max-w-lg break-all"></div>
+        <div class="flex flex-row w-full">
+          <div class="basis-1/2">
+            <h2>Public data:</h2>
+            <div class="public-data-content-container"></div>
+            <button class="w-56 load-public-data-button py-4 px-6 snap-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-blue-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-full">Load public data</button>
+          </div>
+          <div class="basis-1/2">
+            <h2>Protected data:</h2>
+            <div class="protected-data-content-container"></div>
+            <button class="w-56 load-private-data-button py-4 px-6 snap-center bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-blue-200 text-white transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-full">Load private data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>
