@@ -217,13 +217,6 @@ generateIdToken({
 ```
 
 ### Putting it all together
-*.env*
-```
-ACCESS_TOKEN_SECRET=SECRET
-REFRESH_TOKEN_SECRET=SECRET
-ID_TOKEN_SECRET=SECRET
-```
-
 
 *index.js*
 
@@ -482,6 +475,15 @@ app.listen(port, () => {
 ```
 
 ## Running the demo
+### Add environment variables
+For the demo you should have some variables.
+
+Create an file ```.env``` in the root folder:
+```
+ACCESS_TOKEN_SECRET=SECRET
+REFRESH_TOKEN_SECRET=SECRET
+ID_TOKEN_SECRET=SECRET
+```
 
 ### Build the SIWT Library
 Currently the demo is setup to run with a local distribution of SIWT. So until it's available through NPM we have to build the library first.
