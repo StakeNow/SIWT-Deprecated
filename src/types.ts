@@ -1,10 +1,39 @@
-export interface messagePayloadData {
+export interface MessagePayloadData {
   dappUrl: string
   timestamp: string
   message: string
 }
 
-export interface signInMessageData {
+export interface SignInMessageData {
   dappUrl: string
   pkh: string
+}
+
+export interface SignInPayload {
+  message: string
+  signature: string
+  pk: string
+  pkh: string
+}
+
+export interface TokenPayload {
+  pkh: string
+  claims?: Record<string, string | number>
+  userInfo?: Record<string, any>
+}
+
+enum Comparator {
+  '=',
+}
+
+export interface AccessControlQuery {
+  nodeAddress?: string
+  contractAddress: string
+  parameters: {
+    pkh?: string
+  }
+  test: {
+    comparator: Comparator
+    value: number
+  }
 }
