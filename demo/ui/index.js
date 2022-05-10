@@ -7,9 +7,10 @@ import './style.css'
 
 const dAppClient = new DAppClient({ name: 'SIWT Demo' })
 const state = { accessToken: '' }
+const API_URL = process.env.API_URL || 'http://localhost:3000'
 
 const getProtectedData = () => {
-  fetch('http://localhost:3000/protected', {
+  fetch(`${API_URL}/protected`, {
     method: 'GET',
     headers: {
       authorization: `Bearer ${state.accessToken}`,
@@ -27,7 +28,7 @@ const getProtectedData = () => {
 }
 
 const getPublicData = () => {
-  fetch('http://localhost:3000/public', {
+  fetch(`${API_URL}/public`, {
     method: 'GET',
   })
     .then(response => response.json())
@@ -56,7 +57,7 @@ const login = async () => {
     const signedPayload = await dAppClient.requestSignPayload(messagePayload)
 
     // sign in the user to our app
-    const { data } = await siwt.signIn('http://localhost:3000')({
+    const { data } = await siwt.signIn(API_URL)({
       pk: walletPermissions.accountInfo.publicKey,
       pkh: walletPermissions.address,
       message: messagePayload.payload,

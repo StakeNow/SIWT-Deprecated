@@ -217,6 +217,12 @@ generateIdToken({
 ```
 
 ### Putting it all together
+*.env*
+```
+ACCESS_TOKEN_SECRET=SECRET
+REFRESH_TOKEN_SECRET=SECRET
+ID_TOKEN_SECRET=SECRET
+```
 
 
 *index.js*
