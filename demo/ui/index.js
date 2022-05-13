@@ -1,11 +1,15 @@
-import { DAppClient } from '@airgap/beacon-sdk'
+import { DAppClient, NetworkType } from '@airgap/beacon-sdk'
 import jwt_decode from 'jwt-decode'
 
 import * as siwt from '../../dist/siwt'
 
 import './style.css'
 
-const dAppClient = new DAppClient({ name: 'SIWT Demo' })
+const dAppClient = new DAppClient({
+  name: 'SIWT Demo',
+  preferredNetwork: NetworkType.ITHACANET,
+})
+
 const state = { accessToken: '' }
 const API_URL = process.env.API_URL || 'http://localhost:3000'
 
@@ -71,6 +75,7 @@ const login = async () => {
 
     if (idToken) {
       const userIdInfo = jwt_decode(idToken)
+      console.log(userIdInfo)
       contentContainer.innerHTML = `<h3>You are logged in as ${userIdInfo.pkh}</h3>`
     }
   } catch (error) {

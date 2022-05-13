@@ -22,8 +22,8 @@ export interface TokenPayload {
   userInfo?: Record<string, any>
 }
 
-enum Comparator {
-  '=',
+export enum Comparator {
+  equals = '=',
 }
 
 export interface AccessControlQuery {

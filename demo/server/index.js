@@ -23,8 +23,8 @@ const authenticate = async (req, res, next) => {
     const accessToken = req.headers.authorization.split(' ')[1]
     const pkh = verifyAccessToken(accessToken)
     if (pkh) {
-      const accessControl = queryAccessControl({
-        contractAddress: 'KT1',
+      const accessControl = await queryAccessControl({
+        contractAddress: 'KT1VsJKRrrShExaN1WnzAWpe6nbDWmp19b7G',
         parameters: {
           pkh,
         },
@@ -38,14 +38,14 @@ const authenticate = async (req, res, next) => {
         return next()
       }
     }
-    return res.status(403).send('Forbidden')
+    return res.status(403).send(JSON.stringify('This data is protected you need to have the required NFT for access.'))
   } catch (e) {
     console.log(e)
     return res.status(403).send('Forbidden')
   }
 }
 
-app.post('/signin', (req, res) => {
+app.post('/signin', async (req, res) => {
   const { message, signature, pk, pkh } = req.body
   try {
     const isValidSignature = verifySignature(message, pk, signature)
@@ -66,8 +66,8 @@ app.post('/signin', (req, res) => {
       const refreshToken = generateRefreshToken(pkh)
 
       // we can use a long-lived ID token to return some personal information about the user to the UI.
-      const access = queryAccessControl({
-        contractAddress: 'KT1',
+      const access = await queryAccessControl({
+        contractAddress: 'KT1VsJKRrrShExaN1WnzAWpe6nbDWmp19b7G',
         parameters: {
           pkh,
         },

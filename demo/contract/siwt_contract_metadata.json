@@ -1,0 +1,23 @@
+{
+  "name": "Tezos Encode Hackathon: SIWT",
+  "description": "Sign In With Tezos: Access Control Management using Tezos NFTs.",
+  "homepage": "https://github.com/StakeNow/SIWT",
+  "authors": [
+    "vDL Digital Ventures GmbH <info@stakenow.fi>"
+  ],
+  "version": "1.0.0",
+  "license": {
+    "name": "MIT"
+  },
+  "interfaces": [
+    "TZIP-016",
+    "TZIP-012",
+    "TZIP-021"
+  ],
+  "source": {
+    "tools": [
+      "LIGO"
+    ],
+    "location": "https://github.com/oxheadalpha/nft-tutorial"
+  }
+}

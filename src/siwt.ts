@@ -2,9 +2,10 @@ import { verifySignature as taquitoVerifySignature } from '@taquito/utils'
 import jwt from 'jsonwebtoken'
 import type { sign as Sign, verify as Verify } from 'jsonwebtoken'
 import axios, { AxiosInstance } from 'axios'
-import { add, assoc, objOf, pipe, prop } from 'ramda'
+import https from 'https'
+import { add, assoc, equals, filter, objOf, pipe, prop, propOr, propEq } from 'ramda'
 
-import { AccessControlQuery, SignInMessageData, SignInPayload, TokenPayload } from './types'
+import { AccessControlQuery, SignInMessageData, SignInPayload, TokenPayload, Comparator } from './types'
 import { constructSignPayload, generateMessageData, packMessagePayload } from './utils'
 import { ACCESS_TOKEN_EXPIRATION, ID_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } from './constants'
 
@@ -79,8 +80,33 @@ export const _verifyRefreshToken = (verify: typeof Verify) => (refreshToken: str
   verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string)
 export const verifyRefreshToken = _verifyRefreshToken(jwt.verify)
 
-export const queryAccessControl = ({ contractAddress, parameters: { pkh } }: AccessControlQuery) => ({
+const getContractStorage = async (contractAddress: string) => {
+  const agent = new https.Agent({
+    rejectUnauthorized: false,
+  })
+
+  const storage = await axios.get(
+    `https://api.ithacanet.tzkt.io/v1/contracts/${contractAddress}/bigmaps/ledger/keys?limit=10000`,
+    { httpsAgent: agent },
+  )
+
+  return prop('data')(storage)
+}
+
+export const queryAccessControl = async ({
   contractAddress,
-  pkh,
-  tokenId: 'KT1_1',
-})
+  parameters: { pkh },
+  test: { comparator, value },
+}: AccessControlQuery) => {
+  const storage = await getContractStorage(contractAddress)
+  const tokenMetadata = filter(propEq('value', pkh as string), storage)
+  const compareList = {
+    [Comparator.equals]: equals(prop('length')(tokenMetadata))(value),
+  }
+
+  return {
+    contractAddress,
+    pkh,
+    tokenId: compareList[comparator] ? propOr(false, 'key')(tokenMetadata[0]) : false,
+  }
+}
