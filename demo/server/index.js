@@ -9,7 +9,7 @@ const {
   generateRefreshToken,
   generateIdToken,
   verifyAccessToken,
-} = require('../../dist/siwt')
+} = require('@stakenow/siwt')
 
 const app = express()
 const port = process.env.PORT || 3000

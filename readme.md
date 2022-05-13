@@ -224,7 +224,7 @@ generateIdToken({
 import { DAppClient } from '@airgap/beacon-sdk'
 import jwt_decode from 'jwt-decode'
 
-import * as siwt from '../../dist/siwt'
+import * as siwt from '@stakenow/siwt'
 
 const dAppClient = new DAppClient({ name: 'SIWT Demo' })
 const state = { accessToken: '' }
@@ -372,7 +372,7 @@ const {
   generateRefreshToken,
   generateIdToken,
   verifyAccessToken,
-} = require('../../dist/siwt')
+} = require('@stakenow/siwt')
 
 const app = express()
 const port = 3000
