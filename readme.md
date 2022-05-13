@@ -2,7 +2,7 @@
 
 Sign In With Tezos (SIWT) is a library that supports the development of your dezentralized application (dApp) by
 - proving the users ownership of the private key to the address the user is trying to sign in with,
-- adding permissions to use your API or FrontEnd based on the ownership of a Non Fungible Token (NFT).
+- adding permissions to use your API or FrontEnd based on the ownership of a Non-Fungible Token (NFT).
 
 ## Running the demo
 ### Clone the project
@@ -11,9 +11,9 @@ git clone https://github.com/StakeNow/SIWT.git
 cd SIWT
  ```
 ### Add environment variables
-For the demo you neet to create your personal SECRETS which should be sufficently long, random and not easy to guess. For the demo it is not relevant but for your project refer to [this documentation](https://jwt.io) for their requirements.
+For the demo you neet to create your personal SECRETS which should be sufficently long, random and not easy to guess. For the demo it is not relevant but for your project refer to [this documentation](https://jwt.io) regarding their requirements.
 
-Create an file ```.env``` in the root folder:
+Create an file ```.env``` in the root folder with the following content:
 ```
 ACCESS_TOKEN_SECRET=SECRET
 REFRESH_TOKEN_SECRET=SECRET
@@ -31,9 +31,11 @@ npm install
 npm run demo:server:start
 ``` 
 
-If everything went correctly you should see the following message:
+If successful you should see the following message:
 
-`SIWT server app listening on port 3000`
+```
+SIWT server app listening on port 3000
+```
 
 ### Build and run the ui
 In a new terminal window from the root folder run:
@@ -52,8 +54,7 @@ npm install @stakenow/siwt
 ```
 
 ## Creating a SIWT Message
-The message is constructed of the URL your d
-The only thing we need to create a message for signing in is the url of your dApp and the user's wallet address or pkh.
+The message is constructed from the URL of your dApp and the user's wallet address more specifically the private key hash (pkh).
 
 Create the message:
 ```
@@ -88,7 +89,7 @@ To successfully sign in we need:
 - The signature
 - The public key of the user. (Be aware this is not the public key hash aka address. It can be obtained when asking permissions from Beacon.)
 
-With this we cab verify the user is the actual owner of the address the user is trying to sign in with. It is very similar to a user proving the ownership of their username by providing the correct password.
+With this we can verify the user is the actual owner of the address he is trying to sign in with. It is very similar to a user proving the ownership of their username by providing the correct password.
 
 This verification happens server side. This means you'll have to set up a server that provides api access. At this point the library looks for a `signin` endpoint. This (for now) is a hard requirement.
 
@@ -104,11 +105,10 @@ const verification = signin(API_URL)({
 ```
 
 ## Getting started
-
 Signing in with Tezos will require a ui to interact with the user and an authentication api to make the necessary verifications and hand out permissions.
 
 ### Implementing the ui
-On the ui we'll make use of [Beacon]('https://www.walletbeacon.io/') to interact with the user's wallet.
+On the ui we will make use of [Beacon]('https://www.walletbeacon.io/') to interact with the user's wallet.
 
 #### Connecting the wallet
 ```
