@@ -1,10 +1,58 @@
-# Sign in with Tezos
+# SIWT
 
-Sign in with Tezos is a small library that helps you as a Tezos dApp developer to:
-- Prove a user owns the private keys to the address the user is trying to sign in with
-- Add permissions to use with your API or FrontEnd
+Sign In With Tezos (SIWT) is a library that supports the development of your dezentralized application (dApp) by
+- proving the users ownership of the private key to the address the user is trying to sign in with,
+- adding permissions to use your API or FrontEnd based on the ownership of a Non Fungible Token (NFT).
+
+## Running the demo
+### Clone the project
+ ```
+git clone https://github.com/StakeNow/SIWT.git
+cd SIWT
+ ```
+### Add environment variables
+For the demo you neet to create your personal SECRETS which should be sufficently long, random and not easy to guess. For the demo it is not relevant but for your project refer to [this documentation](https://jwt.io) for their requirements.
+
+Create an file ```.env``` in the root folder:
+```
+ACCESS_TOKEN_SECRET=SECRET
+REFRESH_TOKEN_SECRET=SECRET
+ID_TOKEN_SECRET=SECRET
+```
+
+### Start the demo
+From the root folder run:
+```
+npm install
+```
+
+### Start the server
+```
+npm run demo:server:start
+``` 
+
+If everything went correctly you should see the following message:
+
+`SIWT server app listening on port 3000`
+
+### Build and run the ui
+In a new terminal window from the root folder run:
+```
+npm run demo:ui:start
+```
+The browser should open automatically. If not just open http://localhost:8080
+
+__Happy Demo!__
+
+
+# Use it in your own project
+The SIWT library is available through NPM. For contributions and building it locally see [contributing.md](./CONTRIBUTING.md).
+```
+npm install @stakenow/siwt
+```
 
 ## Creating a SIWT Message
+The message is constructed of the URL your d
 The only thing we need to create a message for signing in is the url of your dApp and the user's wallet address or pkh.
 
 Create the message:
@@ -473,41 +521,3 @@ app.listen(port, () => {
   console.log(`SIWT server app listening on port ${port}`)
 })
 ```
-
-## Running the demo
-### Add environment variables
-For the demo you should have some variables.
-
-Create an file ```.env``` in the root folder:
-```
-ACCESS_TOKEN_SECRET=SECRET
-REFRESH_TOKEN_SECRET=SECRET
-ID_TOKEN_SECRET=SECRET
-```
-
-### Build the SIWT Library
-Currently the demo is setup to run with a local distribution of SIWT. So until it's available through NPM we have to build the library first.
-
-From the root folder run:
-```
-npm install
-npm run build
-```
-
-### Start the server
-From the root folder run:
-```
-npm run demo:server:start
-``` 
-
-If everything went correctly you should see the following message:
-
-`SIWT server app listening on port 3000`
-
-### Build and run the ui
-In a new terminal window from the root folder run:
-```
-npm run demo:ui:start
-```
-
-__Happy Demo!__
