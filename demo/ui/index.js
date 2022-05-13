@@ -1,7 +1,7 @@
 import { DAppClient } from '@airgap/beacon-sdk'
 import jwt_decode from 'jwt-decode'
 
-import * as siwt from '../../dist/siwt'
+import * as siwt from '@stakenow/siwt'
 
 import './style.css'
 
