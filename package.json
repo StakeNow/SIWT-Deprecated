@@ -1,11 +1,16 @@
 {
   "name": "@stakenow/siwt",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Sign in with Tezos",
   "main": "dist/siwt.js",
+  "module": "dist/siwt.js",
+  "typings": "dist/types/siwt.d.ts",
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "start": "rollup -c rollup.config.js -w",
     "build": "rollup -c rollup.config.js",
