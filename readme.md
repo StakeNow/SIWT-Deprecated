@@ -6,25 +6,32 @@ Sign In With Tezos (SIWT) is a library that supports the development of your dec
 
 **Table of content:**
 
-* [Technical concepts](#technical-concepts)
-  * [SIWT Message](#siwt-message)
-  * [Sign in the user](#sign-in-the-user)
-  * TODO: NFT Ownership / Permissions
-* [Getting started with your project](#getting-started-with-your-project)
-  * [Implementing the ui](#implementing-the-ui)
-    * [Connecting the wallet](#connecting-the-wallet)
-    * [Creating the message](#creating-the-message)
-    * [Requesting the signature](#requesting-the-signature)
-    * [Signing the user into your dApp](#signing-the-user-into-your-dapp)
-    * [Token types](#token-types)
-  * [Implementing the server](#implementing-the-server)
-    * [Verifying the signature](#verifying-the-signature)
-    * [Creating tokens](#creating-tokens)
-  * [Putting it all together](#putting-it-all-together)
-  * [Implementing your authorization API](#implementing-your-authorization-api)
-* [Run the demo](#run-the-demo)
-* [Future outlook](#future-outlook)
-* [Get in contact](#get-in-contact)
+- [**SIWT**](#siwt)
+  - [Technical concepts](#technical-concepts)
+    - [**SIWT Message**](#siwt-message)
+    - [**Signing in the user**](#signing-in-the-user)
+    - [**Query access control**](#query-access-control)
+    - [**Tokens**](#tokens)
+  - [Getting started with your project](#getting-started-with-your-project)
+    - [**Implementing the ui**](#implementing-the-ui)
+      - [**Connecting the wallet**](#connecting-the-wallet)
+      - [**Creating the message**](#creating-the-message)
+      - [**Requesting the signature**](#requesting-the-signature)
+      - [**Signing the user into your dApp**](#signing-the-user-into-your-dapp)
+      - [**Token types**](#token-types)
+    - [**Implementing the server**](#implementing-the-server)
+      - [**Verifying the signature**](#verifying-the-signature)
+      - [**Creating tokens**](#creating-tokens)
+    - [**Putting it all together**](#putting-it-all-together)
+    - [**Implementing your authorization API**](#implementing-your-authorization-api)
+  - [Run the demo](#run-the-demo)
+    - [**Clone the project**](#clone-the-project)
+    - [**Add environment variables**](#add-environment-variables)
+    - [**Start the demo**](#start-the-demo)
+    - [**Start the server**](#start-the-server)
+    - [**Build and run the ui**](#build-and-run-the-ui)
+  - [Future outlook](#future-outlook)
+  - [Get in contact](#get-in-contact)
 
 ## Technical concepts
 
@@ -55,7 +62,7 @@ Deconstructing this message will reveal the following format:
 
 __This message is now ready to be signed by the user.__
 
-### **Sign in the user**
+### **Signing in the user**
 
 The user specific signature derived from the signed message is used to sign the user into the dApp.
 
@@ -66,7 +73,7 @@ To successfully sign in you will need:
 
   (Be aware that this is not the public key hash (pkh) also known as the address. This public key can be obtained when asking permissions from Beacon.)
 
-With this you can verify the user is the actual owner of the address he is trying to sign in with. It is very similar to a user proving the ownership of their username by providing the correct password. This verification happens server side. This means you will have to set up a server that provides the API access. At this point the library looks for a `signin` endpoint. This is (for now) a hard requirement.
+With this you can verify the user is the actual owner of the address he/she is trying to sign in with. It is very similar to a user proving the ownership of their username by providing the correct password. This verification happens server side. This means you will have to set up a server that provides the API access. At this point the library looks for a `signin` endpoint. This is (for now) a hard requirement.
 
 ```
 import { signin } from '@stakenow/siwt'
@@ -78,6 +85,31 @@ const verification = signin(API_URL)({
   pk,
 })
 ```
+
+### **Query access control**
+
+Now that the user is signed in to your dApp, you can check whether your user has the required NFT to obtain permissions for your app. 
+For this you can use `queryAccessControl`.
+
+The `queryAccessControl` function requires your NFT token contract, the pkh of the user and the ruleset to test against:
+
+```
+  {
+    contractAddress: 'CONTRACT_ADDRESS'
+    parameters: {
+      pkh: 'PKH'
+    }
+    test: {
+      comparator: '='
+      value: 1
+    }
+  }
+```
+
+### **Tokens**
+
+Now that we have permissions it is time to let your dApp know. For communicating information about your user, JWT tokens are being used. SIWT provides an abstraction to make it more convenenient to work with them. It does expect you to generate secure secrets and keep them in your .env file.
+
 
 ## Getting started with your project
 The SIWT library is available through `npm`. For contributions and building it locally see [contributing.md](./CONTRIBUTING.md).
@@ -204,7 +236,7 @@ try {
   verifyRefreshToken('REFRESH TOKEN')
   // Refresh the access token for the user
 } catch {
-  // AccessToken cannot be renewd. Log your user out and request a new signed message to log in again.
+  // AccessToken cannot be renewed. Log your user out and request a new signed message to log in again.
 }
 ```
 
@@ -348,7 +380,7 @@ window.onload = init
             <div class="public-data-content-container"></div>
             <button class="load-public-data-button">Load public data</button>
           </div>
-          <div class="basis-1/2">
+          <div>
             <h2>Protected data:</h2>
             <div class="protected-data-content-container"></div>
             <button class="load-private-data-button">Load private data</button>
@@ -407,7 +439,7 @@ const authenticate = async (req, res, next) => {
           pkh,
         },
         test: {
-          comparator: '=',
+          comparator: '>=',
           value: 1,
         },
       })
@@ -455,7 +487,7 @@ app.post('/signin', (req, res) => {
           pkh,
         },
         test: {
-          comparator: '=',
+          comparator: '>=',
           value: 1,
         },
       })
