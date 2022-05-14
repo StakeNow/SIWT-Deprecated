@@ -13,6 +13,31 @@ const dAppClient = new DAppClient({
 const state = { accessToken: '' }
 const API_URL = process.env.API_URL || 'http://localhost:3000'
 
+const setBackground = status => {
+  const DemoContainer = document.getElementsByClassName('demo-container')[0]
+  DemoContainer.classList.remove('from-sky-500', 'to-sky-500')
+  DemoContainer.classList.remove('bg-blue-700')
+  if (status === 200) {
+    DemoContainer.classList.add('from-green-500', 'to-sky-500')
+    DemoContainer.classList.add('bg-green-500')
+  } else if (status === 403) {
+    DemoContainer.classList.add('from-red-500', 'to-sky-500')
+    DemoContainer.classList.add('bg-red-500')
+  } else {
+    DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
+    DemoContainer.classList.add('bg-blue-700')
+  }
+
+  setTimeout(() => {
+    DemoContainer.classList.remove('from-red-500', 'to-sky-500')
+    DemoContainer.classList.remove('from-green-500', 'to-sky-500')
+    DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
+    DemoContainer.classList.remove('bg-green-500')
+    DemoContainer.classList.remove('bg-red-500')
+    DemoContainer.classList.add('bg-blue-700')
+  }, 1000)
+}
+
 const getProtectedData = () => {
   fetch(`${API_URL}/protected`, {
     method: 'GET',
@@ -20,28 +45,17 @@ const getProtectedData = () => {
       authorization: `Bearer ${state.accessToken}`,
     },
   })
-    .then(response => response.json())
+    .then(response => {
+      setBackground(response.status)
+      return response.json()
+    })
     .then(data => {
-      const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
-      const DemoContainer = document.getElementsByClassName('demo-container')[0]
-
-      if (data.type === 200) {
-        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
-        // DemoContainer.classList.remove('from-red-600', 'to-sky-500')
-        DemoContainer.classList.add('from-green-600', 'to-sky-500')
-      } else if (data.type === 403) {
-        // DemoContainer.classList.remove('from-green-600', 'to-sky-500')
-        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
-        DemoContainer.classList.add('from-red-600', 'to-sky-500')
-      } else {
-        DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
-      }
-
-      protectedDataContainer.innerHTML = data
+      const MessageContent = document.getElementsByClassName('message-content')[0]
+      MessageContent.innerHTML = data
     })
     .catch(error => {
-      const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
-      protectedDataContainer.innerHTML = error.message
+      const MessageContent = document.getElementsByClassName('message-content')[0]
+      MessageContent.innerHTML = error.message
     })
 }
 
@@ -52,28 +66,17 @@ const getSignedInData = () => {
       authorization: `Bearer ${state.accessToken}`,
     },
   })
-    .then(response => response.json())
+    .then(response => {
+      setBackground(response.status)
+      return response.json()
+    })
     .then(data => {
-      const protectedDataContainer = document.getElementsByClassName('signed-in-data-content-container')[0]
-      const DemoContainer = document.getElementsByClassName('demo-container')[0]
-
-      if (data.type === 200) {
-        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
-        // DemoContainer.classList.remove('from-red-600', 'to-sky-500')
-        DemoContainer.classList.add('from-green-600', 'to-sky-500')
-      } else if (data.type === 403) {
-        // DemoContainer.classList.remove('from-green-600', 'to-sky-500')
-        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
-        DemoContainer.classList.add('from-red-600', 'to-sky-500')
-      } else {
-        DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
-      }
-
-      protectedDataContainer.innerHTML = data
+      const MessageContent = document.getElementsByClassName('message-content')[0]
+      MessageContent.innerHTML = data
     })
     .catch(error => {
-      const protectedDataContainer = document.getElementsByClassName('signed-in-data-content-container')[0]
-      protectedDataContainer.innerHTML = error.message
+      const MessageContent = document.getElementsByClassName('message-content')[0]
+      MessageContent.innerHTML = error.message
     })
 }
 
@@ -81,14 +84,17 @@ const getPublicData = () => {
   fetch(`${API_URL}/public`, {
     method: 'GET',
   })
-    .then(response => response.json())
+    .then(response => {
+      setBackground(response.status)
+      return response.json()
+    })
     .then(data => {
-      const publicDataContainer = document.getElementsByClassName('public-data-content-container')[0]
-      publicDataContainer.innerHTML = data
+      const MessageContent = document.getElementsByClassName('message-content')[0]
+      MessageContent.innerHTML = data
     })
     .catch(error => {
-      const publicDataContainer = document.getElementsByClassName('public-data-content-container')[0]
-      publicDataContainer.innerHTML = error.message
+      const MessageContent = document.getElementsByClassName('message-content')[0]
+      MessageContent.innerHTML = error.message
     })
 }
 
@@ -126,7 +132,7 @@ const login = async () => {
 
     if (idToken) {
       const userIdInfo = jwt_decode(idToken)
-      contentContainer.innerHTML = `<h3>You are logged in as ${userIdInfo.pkh}</h3>`
+      contentContainer.innerHTML = `<h3>You are connected with <br />${userIdInfo.pkh}</h3>`
     }
   } catch (error) {
     const contentContainer = document.getElementsByClassName('content-container')[0]

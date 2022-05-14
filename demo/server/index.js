@@ -25,10 +25,10 @@ const authenticateSignIn = async (req, res, next) => {
     if (pkh) {
       return next()
     }
-    return res.status(403).send(JSON.stringify('Forbidden'))
+    return res.status(403).send(JSON.stringify('You need to connect and sign the message.'))
   } catch (e) {
     console.log(e)
-    return res.status(403).send(JSON.stringify('Forbidden'))
+    return res.status(403).send(JSON.stringify('Unable to connect.'))
   }
 }
 
@@ -52,11 +52,12 @@ const authenticateAccess = async (req, res, next) => {
       if (accessControl.passedTest) {
         return next()
       }
+      return res.status(403).send(JSON.stringify('You need the subscription NFT to access premium content.'))
     }
-    return res.status(403).send(JSON.stringify('This data is protected you need to have the required NFT for access.'))
+    return res.status(403).send(JSON.stringify('Unable to assess NFT ownership.'))
   } catch (e) {
     console.log(e)
-    return res.status(403).send(JSON.stringify('Forbidden'))
+    return res.status(403).send(JSON.stringify('Unable to assess NFT ownership.'))
   }
 }
 
@@ -106,23 +107,23 @@ app.post('/signin', async (req, res) => {
         tokenType: 'Bearer',
       })
     }
-    return res.status(403).send(JSON.stringify('Forbidden'))
+    return res.status(403).send(JSON.stringify('Incorrect signature provided.'))
   } catch (e) {
     console.log(e)
-    return res.status(403).send(JSON.stringify('Forbidden'))
+    return res.status(403).send(JSON.stringify('Failed to verify signature.'))
   }
 })
 
 app.get('/public', (req, res) => {
-  res.send(JSON.stringify('This data is public. Anyone can request it.'))
+  res.send(JSON.stringify('Free content is accessable without restrictions.'))
 })
-  
+
 app.get('/signin-required', authenticateSignIn, (req, res) => {
-  res.send(JSON.stringify('Thank you for having signed in. This is the only way.'))
+  res.send(JSON.stringify('Basic content is available as you connected and signed a personalized message.'))
 })
 
 app.get('/protected', authenticateAccess, (req, res) => {
-  res.send(JSON.stringify('This data is protected but you have the required NFT so you have access to it.'))
+  res.send(JSON.stringify('Premium content is available as you own the respective subscription NFT.'))
 })
 
 app.listen(port, () => {

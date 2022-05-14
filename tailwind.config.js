@@ -5,7 +5,14 @@ module.exports = {
     extend: {},
   },
   variants: {
-  extend: {},
+    extend: {},
   },
   plugins: [],
+  safelist: [
+    'bg-red-500',
+    'from-red-500',
+    'bg-green-500',
+    'from-green-500',
+    'to-sky-500',
+  ],
 }
