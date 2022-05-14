@@ -25,10 +25,10 @@ const authenticateSignIn = async (req, res, next) => {
     if (pkh) {
       return next()
     }
-    return res.status(403).send('Forbidden')
+    return res.status(403).send(JSON.stringify('Forbidden'))
   } catch (e) {
     console.log(e)
-    return res.status(403).send('Forbidden')
+    return res.status(403).send(JSON.stringify('Forbidden'))
   }
 }
 
@@ -53,10 +53,10 @@ const authenticateAccess = async (req, res, next) => {
         return next()
       }
     }
-    return res.status(403).send(JSON.stringify({ type: 403, message: 'This data is protected you need to have the required NFT for access.' }))
+    return res.status(403).send(JSON.stringify('This data is protected you need to have the required NFT for access.'))
   } catch (e) {
     console.log(e)
-    return res.status(403).send('Forbidden')
+    return res.status(403).send(JSON.stringify('Forbidden'))
   }
 }
 
@@ -106,10 +106,10 @@ app.post('/signin', async (req, res) => {
         tokenType: 'Bearer',
       })
     }
-    return res.status(403).send('Forbidden')
+    return res.status(403).send(JSON.stringify('Forbidden'))
   } catch (e) {
     console.log(e)
-    return res.status(403).send('Forbidden')
+    return res.status(403).send(JSON.stringify('Forbidden'))
   }
 })
 
@@ -122,7 +122,7 @@ app.get('/signin-required', authenticateSignIn, (req, res) => {
 })
 
 app.get('/protected', authenticateAccess, (req, res) => {
-  res.send(JSON.stringify({ type: 200, message: 'This data is protected but you have the required NFT so you have access to it.' }))
+  res.send(JSON.stringify('This data is protected but you have the required NFT so you have access to it.'))
 })
 
 app.listen(port, () => {
