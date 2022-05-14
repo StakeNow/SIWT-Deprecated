@@ -13,10 +13,8 @@ const dAppClient = new DAppClient({
 const state = { accessToken: '' }
 const API_URL = process.env.API_URL || 'http://localhost:3000'
 
-const setBackground = (status) => {
+const setBackground = status => {
   const DemoContainer = document.getElementsByClassName('demo-container')[0]
-  // const DemoContainer = document.getElementsByClassName('message-container')[0]
-  // const DemoContainer = document.getElementsByClassName('message-content')[0]
   DemoContainer.classList.remove('from-sky-500', 'to-sky-500')
   DemoContainer.classList.remove('bg-blue-700')
   if (status === 200) {
@@ -52,16 +50,10 @@ const getProtectedData = () => {
       return response.json()
     })
     .then(data => {
-      // const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
-      // protectedDataContainer.innerHTML = data
-
       const MessageContent = document.getElementsByClassName('message-content')[0]
       MessageContent.innerHTML = data
     })
     .catch(error => {
-      // const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
-      // protectedDataContainer.innerHTML = error.message
-
       const MessageContent = document.getElementsByClassName('message-content')[0]
       MessageContent.innerHTML = error.message
     })
@@ -79,16 +71,10 @@ const getSignedInData = () => {
       return response.json()
     })
     .then(data => {
-      // const protectedDataContainer = document.getElementsByClassName('signed-in-data-content-container')[0]
-      // protectedDataContainer.innerHTML = data
-
       const MessageContent = document.getElementsByClassName('message-content')[0]
       MessageContent.innerHTML = data
     })
     .catch(error => {
-      // const protectedDataContainer = document.getElementsByClassName('signed-in-data-content-container')[0]
-      // protectedDataContainer.innerHTML = error.message
-
       const MessageContent = document.getElementsByClassName('message-content')[0]
       MessageContent.innerHTML = error.message
     })
@@ -103,16 +89,10 @@ const getPublicData = () => {
       return response.json()
     })
     .then(data => {
-      // const publicDataContainer = document.getElementsByClassName('public-data-content-container')[0]
-      // publicDataContainer.innerHTML = data
-
       const MessageContent = document.getElementsByClassName('message-content')[0]
       MessageContent.innerHTML = data
     })
     .catch(error => {
-      // const publicDataContainer = document.getElementsByClassName('public-data-content-container')[0]
-      // publicDataContainer.innerHTML = error.message
-
       const MessageContent = document.getElementsByClassName('message-content')[0]
       MessageContent.innerHTML = error.message
     })
