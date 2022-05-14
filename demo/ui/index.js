@@ -13,6 +13,24 @@ const dAppClient = new DAppClient({
 const state = { accessToken: '' }
 const API_URL = process.env.API_URL || 'http://localhost:3000'
 
+const setBackground = (status) => {
+  const DemoContainer = document.getElementsByClassName('demo-container')[0]
+  DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
+  if (status === 200) {
+    DemoContainer.classList.add('from-green-500', 'to-sky-500')
+  } else if (status === 403) {
+    DemoContainer.classList.add('from-red-500', 'to-sky-500')
+  } else {
+    DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
+  }
+
+  setTimeout(() => {
+    DemoContainer.classList.remove('from-red-500', 'to-sky-500')
+    DemoContainer.classList.remove('from-green-500', 'to-sky-500')
+    DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
+  }, 1000)
+}
+
 const getProtectedData = () => {
   fetch(`${API_URL}/protected`, {
     method: 'GET',
@@ -20,23 +38,12 @@ const getProtectedData = () => {
       authorization: `Bearer ${state.accessToken}`,
     },
   })
-    .then(response => response.json())
+    .then(response => {
+      setBackground(response.status)
+      return response.json()
+    })
     .then(data => {
       const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
-      const DemoContainer = document.getElementsByClassName('demo-container')[0]
-
-      if (data.type === 200) {
-        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
-        // DemoContainer.classList.remove('from-red-600', 'to-sky-500')
-        DemoContainer.classList.add('from-green-600', 'to-sky-500')
-      } else if (data.type === 403) {
-        // DemoContainer.classList.remove('from-green-600', 'to-sky-500')
-        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
-        DemoContainer.classList.add('from-red-600', 'to-sky-500')
-      } else {
-        DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
-      }
-
       protectedDataContainer.innerHTML = data
     })
     .catch(error => {
@@ -52,23 +59,12 @@ const getSignedInData = () => {
       authorization: `Bearer ${state.accessToken}`,
     },
   })
-    .then(response => response.json())
+    .then(response => {
+      setBackground(response.status)
+      return response.json()
+    })
     .then(data => {
       const protectedDataContainer = document.getElementsByClassName('signed-in-data-content-container')[0]
-      const DemoContainer = document.getElementsByClassName('demo-container')[0]
-
-      if (data.type === 200) {
-        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
-        // DemoContainer.classList.remove('from-red-600', 'to-sky-500')
-        DemoContainer.classList.add('from-green-600', 'to-sky-500')
-      } else if (data.type === 403) {
-        // DemoContainer.classList.remove('from-green-600', 'to-sky-500')
-        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
-        DemoContainer.classList.add('from-red-600', 'to-sky-500')
-      } else {
-        DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
-      }
-
       protectedDataContainer.innerHTML = data
     })
     .catch(error => {
@@ -81,7 +77,10 @@ const getPublicData = () => {
   fetch(`${API_URL}/public`, {
     method: 'GET',
   })
-    .then(response => response.json())
+    .then(response => {
+      setBackground(response.status)
+      return response.json()
+    })
     .then(data => {
       const publicDataContainer = document.getElementsByClassName('public-data-content-container')[0]
       publicDataContainer.innerHTML = data

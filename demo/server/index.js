@@ -52,8 +52,9 @@ const authenticateAccess = async (req, res, next) => {
       if (accessControl.passedTest) {
         return next()
       }
+      return res.status(403).send(JSON.stringify('This data is protected you need to have the required NFT for access.'))
     }
-    return res.status(403).send(JSON.stringify('This data is protected you need to have the required NFT for access.'))
+    return res.status(403).send(JSON.stringify('Forbidden'))
   } catch (e) {
     console.log(e)
     return res.status(403).send(JSON.stringify('Forbidden'))
