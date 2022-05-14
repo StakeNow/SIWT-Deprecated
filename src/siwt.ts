@@ -100,14 +100,14 @@ export const _queryAccessControl =
         contractAddress,
         pkh,
         tokens: pluck('key')(tokenMetadata),
-        pastTest: compareList[comparator],
+        passedTest: compareList[comparator],
       }
     } catch {
       return {
         contractAddress,
         pkh,
         tokenId: [],
-        pastTest: false,
+        passedTest: false,
       }
     }
   }

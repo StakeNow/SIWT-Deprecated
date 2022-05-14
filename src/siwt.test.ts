@@ -202,7 +202,7 @@ describe('./siwt', () => {
         contractAddress: 'CONTRACT',
         pkh: 'ADDRESS',
         tokens: ['1'],
-        pastTest: true,
+        passedTest: true,
       })
     })
 
@@ -227,9 +227,10 @@ describe('./siwt', () => {
         contractAddress: 'CONTRACT',
         pkh: 'ADDRESS',
         tokens: ['1', '2'],
-        pastTest: true,
+        passedTest: true,
       })
     })
+
     it('should past test when user has token', async () => {
       const storageStub = jest.fn().mockReturnValue([{ value: 'ADDRESS', key: '1' }])
 
@@ -248,7 +249,7 @@ describe('./siwt', () => {
         contractAddress: 'CONTRACT',
         pkh: 'ADDRESS',
         tokens: ['1'],
-        pastTest: true,
+        passedTest: true,
       })
     })
 
@@ -270,7 +271,7 @@ describe('./siwt', () => {
         contractAddress: 'CONTRACT',
         pkh: 'ADDRESS',
         tokens: [],
-        pastTest: false,
+        passedTest: false,
       })
     })
   })

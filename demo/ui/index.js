@@ -1,7 +1,7 @@
 import { DAppClient, NetworkType } from '@airgap/beacon-sdk'
 import jwt_decode from 'jwt-decode'
 
-import * as siwt from '../../dist/siwt'
+import * as siwt from '@stakenow/siwt'
 
 import './style.css'
 
@@ -25,17 +25,18 @@ const getProtectedData = () => {
       const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
       const DemoContainer = document.getElementsByClassName('demo-container')[0]
 
-      console.log(data)
-
       if (data.type === 200) {
-        DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
-        DemoContainer.classList.remove('from-red-600', 'to-sky-500')
+        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
+        // DemoContainer.classList.remove('from-red-600', 'to-sky-500')
         DemoContainer.classList.add('from-green-600', 'to-sky-500')
-      } else {
-        DemoContainer.classList.remove('from-green-600', 'to-sky-500')
-        DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
+      } else if (data.type === 403) {
+        // DemoContainer.classList.remove('from-green-600', 'to-sky-500')
+        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
         DemoContainer.classList.add('from-red-600', 'to-sky-500')
+      } else {
+        DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
       }
+
       protectedDataContainer.innerHTML = data.message
     })
     .catch(error => {

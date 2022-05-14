@@ -9,7 +9,7 @@ const {
   generateRefreshToken,
   generateIdToken,
   verifyAccessToken,
-} = require('../../dist/siwt')
+} = require('@stakenow/siwt')
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -34,7 +34,7 @@ const authenticate = async (req, res, next) => {
         },
       })
 
-      if (accessControl.pastTest) {
+      if (accessControl.passedTest) {
         return next()
       }
     }
