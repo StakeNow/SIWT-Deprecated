@@ -17,7 +17,22 @@ const port = process.env.PORT || 3000
 app.use(cors())
 app.use(bodyParser.json())
 
-const authenticate = async (req, res, next) => {
+const authenticateSignIn = async (req, res, next) => {
+  try {
+    // decode the access token
+    const accessToken = req.headers.authorization.split(' ')[1]
+    const pkh = verifyAccessToken(accessToken)
+    if (pkh) {
+      return next()
+    }
+    return res.status(403).send('Forbidden')
+  } catch (e) {
+    console.log(e)
+    return res.status(403).send('Forbidden')
+  }
+}
+
+const authenticateAccess = async (req, res, next) => {
   try {
     // decode the access token
     const accessToken = req.headers.authorization.split(' ')[1]
@@ -101,8 +116,12 @@ app.post('/signin', async (req, res) => {
 app.get('/public', (req, res) => {
   res.send(JSON.stringify('This data is public. Anyone can request it.'))
 })
+  
+app.get('/signin-required', authenticateSignIn, (req, res) => {
+  res.send(JSON.stringify('Thank you for having signed in. This is the only way.'))
+})
 
-app.get('/protected', authenticate, (req, res) => {
+app.get('/protected', authenticateAccess, (req, res) => {
   res.send(JSON.stringify({ type: 200, message: 'This data is protected but you have the required NFT so you have access to it.' }))
 })
 
