@@ -23,7 +23,20 @@ const getProtectedData = () => {
     .then(response => response.json())
     .then(data => {
       const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
-      protectedDataContainer.innerHTML = data
+      const DemoContainer = document.getElementsByClassName('demo-container')[0]
+
+      console.log(data)
+
+      if (data.type === 200) {
+        DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
+        DemoContainer.classList.remove('from-red-600', 'to-sky-500')
+        DemoContainer.classList.add('from-green-600', 'to-sky-500')
+      } else {
+        DemoContainer.classList.remove('from-green-600', 'to-sky-500')
+        DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
+        DemoContainer.classList.add('from-red-600', 'to-sky-500')
+      }
+      protectedDataContainer.innerHTML = data.message
     })
     .catch(error => {
       const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
@@ -80,7 +93,6 @@ const login = async () => {
 
     if (idToken) {
       const userIdInfo = jwt_decode(idToken)
-      console.log(userIdInfo)
       contentContainer.innerHTML = `<h3>You are logged in as ${userIdInfo.pkh}</h3>`
     }
   } catch (error) {

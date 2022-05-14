@@ -2,10 +2,9 @@ import { verifySignature as taquitoVerifySignature } from '@taquito/utils'
 import jwt from 'jsonwebtoken'
 import type { sign as Sign, verify as Verify } from 'jsonwebtoken'
 import axios, { AxiosInstance } from 'axios'
-import https from 'https'
-import { add, assoc, equals, filter, objOf, pipe, prop, propOr, propEq, gte } from 'ramda'
+import { add, assoc, equals, filter, objOf, pipe, prop, pluck, propEq, gte } from 'ramda'
 
-import { AccessControlQuery, SignInMessageData, SignInPayload, TokenPayload, Comparator } from './types'
+import { AccessControlQuery, SignInMessageData, SignInPayload, TokenPayload, Comparator, TokenMetadata } from './types'
 import { constructSignPayload, generateMessageData, packMessagePayload } from './utils'
 import { ACCESS_TOKEN_EXPIRATION, ID_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } from './constants'
 
@@ -46,7 +45,7 @@ export const _generateIdToken =
       process.env.ID_TOKEN_SECRET as string,
       { expiresIn: ID_TOKEN_EXPIRATION },
     )
-export const generateIdToken = _generateIdToken(jwt.sign)
+export const generateIdToken = _generateIdToken(jwt?.sign)
 
 export const _generateAccessToken =
   (sign: typeof Sign) =>
@@ -60,11 +59,11 @@ export const _generateAccessToken =
       },
       process.env.ACCESS_TOKEN_SECRET as string,
     )
-export const generateAccessToken = _generateAccessToken(jwt.sign)
+export const generateAccessToken = _generateAccessToken(jwt?.sign)
 
 export const _generateRefreshToken = (sign: typeof Sign) => (pkh: string) =>
   sign({ pkh }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: REFRESH_TOKEN_EXPIRATION })
-export const generateRefreshToken = _generateRefreshToken(jwt.sign)
+export const generateRefreshToken = _generateRefreshToken(jwt?.sign)
 
 export const _verifyAccessToken = (verify: typeof Verify) => (accessToken: string) => {
   try {
@@ -74,40 +73,43 @@ export const _verifyAccessToken = (verify: typeof Verify) => (accessToken: strin
     return false
   }
 }
-export const verifyAccessToken = _verifyAccessToken(jwt.verify)
+export const verifyAccessToken = _verifyAccessToken(jwt?.verify)
 
 export const _verifyRefreshToken = (verify: typeof Verify) => (refreshToken: string) =>
   verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string)
-export const verifyRefreshToken = _verifyRefreshToken(jwt.verify)
+export const verifyRefreshToken = _verifyRefreshToken(jwt?.verify)
 
-const getContractStorage = async (contractAddress: string) => {
-  const agent = new https.Agent({
-    rejectUnauthorized: false,
-  })
+export const getContractStorage = (contractAddress: string) =>
+  axios
+    .get(`https://api.ithacanet.tzkt.io/v1/contracts/${contractAddress}/bigmaps/ledger/keys?limit=10000`)
+    .then(prop('data'))
+    .catch(console.log)
 
-  const storage = await axios.get(
-    `https://api.ithacanet.tzkt.io/v1/contracts/${contractAddress}/bigmaps/ledger/keys?limit=10000`,
-    { httpsAgent: agent },
-  )
+export const _queryAccessControl =
+  (contractStorage: (x: string) => Promise<TokenMetadata[]>) =>
+  async ({ contractAddress, parameters: { pkh }, test: { comparator, value } }: AccessControlQuery) => {
+    try {
+      const storage = await contractStorage(contractAddress)
+      const tokenMetadata = filter(propEq('value', pkh as string), storage)
+      const compareList = {
+        [Comparator.equals]: equals(prop('length')(tokenMetadata))(value),
+        [Comparator.greater]: gte(prop('length')(tokenMetadata), value),
+      }
 
-  return prop('data')(storage)
-}
-
-export const queryAccessControl = async ({
-  contractAddress,
-  parameters: { pkh },
-  test: { comparator, value },
-}: AccessControlQuery) => {
-  const storage = await getContractStorage(contractAddress)
-  const tokenMetadata = filter(propEq('value', pkh as string), storage)
-  const compareList = {
-    [Comparator.equals]: equals(prop('length')(tokenMetadata))(value),
-    [Comparator.greater]: gte(prop('length')(tokenMetadata), value),
+      return {
+        contractAddress,
+        pkh,
+        tokens: pluck('key')(tokenMetadata),
+        pastTest: compareList[comparator],
+      }
+    } catch {
+      return {
+        contractAddress,
+        pkh,
+        tokenId: [],
+        pastTest: false,
+      }
+    }
   }
 
-  return {
-    contractAddress,
-    pkh,
-    tokenId: compareList[comparator] ? propOr(false, 'key')(tokenMetadata[0]) : false,
-  }
-}
+export const queryAccessControl = _queryAccessControl(getContractStorage)

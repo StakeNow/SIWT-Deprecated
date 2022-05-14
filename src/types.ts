@@ -38,3 +38,14 @@ export interface AccessControlQuery {
     value: number
   }
 }
+
+export type TokenMetadata = {
+  id?: number
+  active?: boolean
+  hash?: string
+  value: string
+  key: string
+  firstLevel?: number
+  lastLevel?: number
+  updates?: number
+}

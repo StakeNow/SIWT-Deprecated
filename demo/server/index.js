@@ -34,11 +34,11 @@ const authenticate = async (req, res, next) => {
         },
       })
 
-      if (accessControl.tokenId) {
+      if (accessControl.pastTest) {
         return next()
       }
     }
-    return res.status(403).send(JSON.stringify('This data is protected you need to have the required NFT for access.'))
+    return res.status(403).send(JSON.stringify({ type: 403, message: 'This data is protected you need to have the required NFT for access.' }))
   } catch (e) {
     console.log(e)
     return res.status(403).send('Forbidden')
@@ -103,7 +103,7 @@ app.get('/public', (req, res) => {
 })
 
 app.get('/protected', authenticate, (req, res) => {
-  res.send(JSON.stringify('This data is protected but you have the required NFT so you have access to it.'))
+  res.send(JSON.stringify({ type: 200, message: 'This data is protected but you have the required NFT so you have access to it.' }))
 })
 
 app.listen(port, () => {

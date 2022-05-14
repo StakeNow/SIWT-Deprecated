@@ -1,4 +1,5 @@
 import * as SUT from './siwt'
+import { Comparator } from './types'
 
 describe('./siwt', () => {
   describe('createMessagePayload', () => {
@@ -179,6 +180,98 @@ describe('./siwt', () => {
 
       expect(result).toThrow()
       expect(verifyStub).toHaveBeenCalledWith(refreshToken, 'REFRESH_TOKEN_SECRET')
+    })
+  })
+
+  describe('queryAccessControl', () => {
+    it('should past test when user has token', async () => {
+      const storageStub = jest.fn().mockReturnValue([{ value: 'ADDRESS', key: '1' }])
+
+      const result = await SUT._queryAccessControl(storageStub)({
+        contractAddress: 'CONTRACT',
+        parameters: {
+          pkh: 'ADDRESS',
+        },
+        test: {
+          comparator: Comparator.equals,
+          value: 1,
+        },
+      })
+
+      expect(result).toEqual({
+        contractAddress: 'CONTRACT',
+        pkh: 'ADDRESS',
+        tokens: ['1'],
+        pastTest: true,
+      })
+    })
+
+    it('should past test and return all tokens of the user', async () => {
+      const storageStub = jest.fn().mockReturnValue([
+        { value: 'ADDRESS', key: '1' },
+        { value: 'ADDRESS', key: '2' },
+      ])
+
+      const result = await SUT._queryAccessControl(storageStub)({
+        contractAddress: 'CONTRACT',
+        parameters: {
+          pkh: 'ADDRESS',
+        },
+        test: {
+          comparator: Comparator.greater,
+          value: 1,
+        },
+      })
+
+      expect(result).toEqual({
+        contractAddress: 'CONTRACT',
+        pkh: 'ADDRESS',
+        tokens: ['1', '2'],
+        pastTest: true,
+      })
+    })
+    it('should past test when user has token', async () => {
+      const storageStub = jest.fn().mockReturnValue([{ value: 'ADDRESS', key: '1' }])
+
+      const result = await SUT._queryAccessControl(storageStub)({
+        contractAddress: 'CONTRACT',
+        parameters: {
+          pkh: 'ADDRESS',
+        },
+        test: {
+          comparator: Comparator.equals,
+          value: 1,
+        },
+      })
+
+      expect(result).toEqual({
+        contractAddress: 'CONTRACT',
+        pkh: 'ADDRESS',
+        tokens: ['1'],
+        pastTest: true,
+      })
+    })
+
+    it('should fail when there is no data', async () => {
+      const storageStub = jest.fn().mockReturnValue([])
+
+      const result = await SUT._queryAccessControl(storageStub)({
+        contractAddress: 'CONTRACT',
+        parameters: {
+          pkh: 'ADDRESS',
+        },
+        test: {
+          comparator: Comparator.equals,
+          value: 1,
+        },
+      })
+
+      expect(result).toEqual({
+        contractAddress: 'CONTRACT',
+        pkh: 'ADDRESS',
+        tokens: [],
+        pastTest: false,
+      })
     })
   })
 })
