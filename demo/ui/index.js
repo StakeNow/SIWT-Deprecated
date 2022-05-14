@@ -37,10 +37,42 @@ const getProtectedData = () => {
         DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
       }
 
-      protectedDataContainer.innerHTML = data.message
+      protectedDataContainer.innerHTML = data
     })
     .catch(error => {
       const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
+      protectedDataContainer.innerHTML = error.message
+    })
+}
+
+const getSignedInData = () => {
+  fetch(`${API_URL}/signin-required`, {
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${state.accessToken}`,
+    },
+  })
+    .then(response => response.json())
+    .then(data => {
+      const protectedDataContainer = document.getElementsByClassName('signed-in-data-content-container')[0]
+      const DemoContainer = document.getElementsByClassName('demo-container')[0]
+
+      if (data.type === 200) {
+        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
+        // DemoContainer.classList.remove('from-red-600', 'to-sky-500')
+        DemoContainer.classList.add('from-green-600', 'to-sky-500')
+      } else if (data.type === 403) {
+        // DemoContainer.classList.remove('from-green-600', 'to-sky-500')
+        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
+        DemoContainer.classList.add('from-red-600', 'to-sky-500')
+      } else {
+        DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
+      }
+
+      protectedDataContainer.innerHTML = data
+    })
+    .catch(error => {
+      const protectedDataContainer = document.getElementsByClassName('signed-in-data-content-container')[0]
       protectedDataContainer.innerHTML = error.message
     })
 }
@@ -106,9 +138,11 @@ const init = () => {
   const loginButton = document.getElementsByClassName('connect-button')[0]
   const loadPublicDataButton = document.getElementsByClassName('load-public-data-button')[0]
   const loadProtectedDataButton = document.getElementsByClassName('load-private-data-button')[0]
+  const loadSignedInDataButton = document.getElementsByClassName('load-signed-in-data-button')[0]
   loginButton.addEventListener('click', login)
   loadPublicDataButton.addEventListener('click', getPublicData)
   loadProtectedDataButton.addEventListener('click', getProtectedData)
+  loadSignedInDataButton.addEventListener('click', getSignedInData)
 }
 
 window.onload = init
