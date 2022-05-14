@@ -1,0 +1,35 @@
+{
+  "decimals": 0,
+  "isBooleanAmount": true,
+  "symbol": "SIWT",
+  "name": "Sign In With Tezos",
+  "shouldPreferSymbol": true,
+  "description": "The ownership of this token grants you access to a feature of a web3 application.",
+  "tags": [
+    "siwt",
+    "demo",
+    "nft"
+  ],
+  "minter": "tz1ggujjYjA7oYoaZBzTg1tYSXn3VMjcgDuv",
+  "artifactUri": "ipfs://QmYuVP2k5qndcfeQ4vWxG2GSkESWGbm2VFhdhRmMt7Fr2V",
+  "displayUri": "ipfs://QmYuVP2k5qndcfeQ4vWxG2GSkESWGbm2VFhdhRmMt7Fr2V",
+  "thumbnailUri": "ipfs://QmXtRqDVVAaUMh1Jz2fsgSPf4ZuDnRwz4xRQZcGc2wuKMY",
+  "externalUri": "https://siwtdemo.stakenow.fi/",
+  "creators": ["vDL Digital Ventures GmbH"],
+  "rights": "(c) 2022 vDL Digital Ventures GmbH. All rights reserved.",
+  "mimeType": "image/png",
+  "attributes": [
+    {
+      "name": "Application",
+      "value": "StakeNow"
+    },
+    {
+      "name": "Feature",
+      "value": "SIWT Demo"
+    },
+    {
+      "name": "Access Level",
+      "value": "beta"
+    }
+  ]
+}

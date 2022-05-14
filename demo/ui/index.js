@@ -1,11 +1,15 @@
-import { DAppClient } from '@airgap/beacon-sdk'
+import { DAppClient, NetworkType } from '@airgap/beacon-sdk'
 import jwt_decode from 'jwt-decode'
 
 import * as siwt from '@stakenow/siwt'
 
 import './style.css'
 
-const dAppClient = new DAppClient({ name: 'SIWT Demo' })
+const dAppClient = new DAppClient({
+  name: 'SIWT Demo',
+  preferredNetwork: NetworkType.ITHACANET,
+})
+
 const state = { accessToken: '' }
 const API_URL = process.env.API_URL || 'http://localhost:3000'
 
@@ -19,7 +23,21 @@ const getProtectedData = () => {
     .then(response => response.json())
     .then(data => {
       const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
-      protectedDataContainer.innerHTML = data
+      const DemoContainer = document.getElementsByClassName('demo-container')[0]
+
+      if (data.type === 200) {
+        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
+        // DemoContainer.classList.remove('from-red-600', 'to-sky-500')
+        DemoContainer.classList.add('from-green-600', 'to-sky-500')
+      } else if (data.type === 403) {
+        // DemoContainer.classList.remove('from-green-600', 'to-sky-500')
+        // DemoContainer.classList.remove('from-sky-500', 'to-indigo-500')
+        DemoContainer.classList.add('from-red-600', 'to-sky-500')
+      } else {
+        DemoContainer.classList.add('from-sky-500', 'to-indigo-500')
+      }
+
+      protectedDataContainer.innerHTML = data.message
     })
     .catch(error => {
       const protectedDataContainer = document.getElementsByClassName('protected-data-content-container')[0]
@@ -45,7 +63,12 @@ const getPublicData = () => {
 const login = async () => {
   try {
     // request wallet permissions with Beacon dAppClient
-    const walletPermissions = await dAppClient.requestPermissions()
+    const walletPermissions = await dAppClient.requestPermissions({
+      network: {
+        type: NetworkType.ITHACANET,
+        rpcUrl: 'https://rpc.tzkt.io/ithacanet',
+      },
+    })
 
     // create the message to be signed
     const messagePayload = siwt.createMessagePayload({

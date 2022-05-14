@@ -22,8 +22,9 @@ export interface TokenPayload {
   userInfo?: Record<string, any>
 }
 
-enum Comparator {
-  '=',
+export enum Comparator {
+  equals = '=',
+  greater = '>=',
 }
 
 export interface AccessControlQuery {
@@ -36,4 +37,15 @@ export interface AccessControlQuery {
     comparator: Comparator
     value: number
   }
+}
+
+export type TokenMetadata = {
+  id?: number
+  active?: boolean
+  hash?: string
+  value: string
+  key: string
+  firstLevel?: number
+  lastLevel?: number
+  updates?: number
 }

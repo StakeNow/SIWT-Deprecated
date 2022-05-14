@@ -1,6 +1,6 @@
 {
   "name": "@stakenow/siwt",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "Sign in with Tezos",
   "main": "dist/siwt.js",
   "module": "dist/siwt.js",
@@ -75,7 +75,7 @@
   },
   "dependencies": {
     "@airgap/beacon-sdk": "^3.0.0",
-    "@stakenow/siwt": "^0.0.2",
+    "@stakenow/siwt": "^0.0.5",
     "@taquito/utils": "^12.0.3",
     "axios": "^0.26.1",
     "body-parser": "^1.20.0",
