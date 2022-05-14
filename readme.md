@@ -1,11 +1,42 @@
-# Sign in with Tezos
+# **SIWT**
 
-Sign in with Tezos is a small library that helps you as a Tezos dApp developer to:
-- Prove a user owns the private keys to the address the user is trying to sign in with
-- Add permissions to use with your API or FrontEnd
+Sign In With Tezos (SIWT) is a library that supports the development of your decentralized application (dApp) by
+- **proving** the users ownership of the private key to the address the user signs in with,
+- adding **permissions** to use your API or FrontEnd based on the **ownership** of a Non-Fungible Token (NFT).
 
-## Creating a SIWT Message
-The only thing we need to create a message for signing in is the url of your dApp and the user's wallet address or pkh.
+**Table of content:**
+
+- [**SIWT**](#siwt)
+  - [Technical concepts](#technical-concepts)
+    - [**SIWT Message**](#siwt-message)
+    - [**Signing in the user**](#signing-in-the-user)
+    - [**Query access control**](#query-access-control)
+    - [**Tokens**](#tokens)
+  - [Getting started with your project](#getting-started-with-your-project)
+    - [**Implementing the ui**](#implementing-the-ui)
+      - [**Connecting the wallet**](#connecting-the-wallet)
+      - [**Creating the message**](#creating-the-message)
+      - [**Requesting the signature**](#requesting-the-signature)
+      - [**Signing the user into your dApp**](#signing-the-user-into-your-dapp)
+      - [**Token types**](#token-types)
+    - [**Implementing the server**](#implementing-the-server)
+      - [**Verifying the signature**](#verifying-the-signature)
+      - [**Creating tokens**](#creating-tokens)
+    - [**Putting it all together**](#putting-it-all-together)
+    - [**Implementing your authorization API**](#implementing-your-authorization-api)
+  - [Run the demo](#run-the-demo)
+    - [**Clone the project**](#clone-the-project)
+    - [**Add environment variables**](#add-environment-variables)
+    - [**Start the demo**](#start-the-demo)
+    - [**Start the server**](#start-the-server)
+    - [**Build and run the ui**](#build-and-run-the-ui)
+  - [Future outlook](#future-outlook)
+  - [Get in contact](#get-in-contact)
+
+## Technical concepts
+
+### **SIWT Message**
+The message is constructed from the URL to your dApp and the user's wallet address more specifically the private key hash (pkh).
 
 Create the message:
 ```
@@ -22,27 +53,27 @@ The resulting message will look something like this:
 
 ` 0501000000bc54657a6f73205369676e6564204d6573736167653a2055524c20323032322d30342d32385430383a34383a33332e3636345a2055524c20776f756c64206c696b6520796f7520746f207369676e20696e207769746820504b482e200a2020`
 
-Deconstructing this message it will have the following format:
+Deconstructing this message will reveal the following format:
 
-- `05`: Indicates this is a Micheline expression
+- `05`: Indicates that this is a Micheline expression
 - `01`: Indicates it is converted to bytes
 - `000000bc`: Indicates the lenght of the message in hex
-- `54...`: The actual message in bytes
+- `54...`: Is the actual message in bytes
 
 __This message is now ready to be signed by the user.__
 
-## Sign the user in
+### **Signing in the user**
 
-When you have the user's signature you can use it to sign the user in.
+The user specific signature derived from the signed message is used to sign the user into the dApp.
 
-To successfully sign in we need:
-- The original message that was created earlier using the `createMessage` function
-- The signature
-- The public key of the user. (Be aware this is not the public key hash aka address. It can be obtained when asking permissions from Beacon.)
+To successfully sign in you will need:
+- The original message that was created earlier using the `createMessage` function,
+- the signature itself and
+- the public key of the user.
 
-With this we cab verify the user is the actual owner of the address the user is trying to sign in with. It is very similar to a user proving the ownership of their username by providing the correct password.
+  (Be aware that this is not the public key hash (pkh) also known as the address. This public key can be obtained when asking permissions from Beacon.)
 
-This verification happens server side. This means you'll have to set up a server that provides api access. At this point the library looks for a `signin` endpoint. This (for now) is a hard requirement.
+With this you can verify the user is the actual owner of the address he/she is trying to sign in with. It is very similar to a user proving the ownership of their username by providing the correct password. This verification happens server side. This means you will have to set up a server that provides the API access. At this point the library looks for a `signin` endpoint. This is (for now) a hard requirement.
 
 ```
 import { signin } from '@stakenow/siwt'
@@ -55,20 +86,47 @@ const verification = signin(API_URL)({
 })
 ```
 
-## Getting started
+### **Query access control**
 
-Signing in with Tezos will require a ui to interact with the user and an authentication api to make the necessary verifications and hand out permissions.
+Now that the user is signed in to your dApp, you can check whether your user has the required NFT to obtain permissions for your app. 
+For this you can use `queryAccessControl`.
 
-### Implementing the ui
-On the ui we'll make use of [Beacon]('https://www.walletbeacon.io/') to interact with the user's wallet.
+The `queryAccessControl` function requires your NFT token contract, the pkh of the user and the ruleset to test against:
 
-#### Connecting the wallet
+```
+  {
+    contractAddress: 'CONTRACT_ADDRESS'
+    parameters: {
+      pkh: 'PKH'
+    }
+    test: {
+      comparator: '='
+      value: 1
+    }
+  }
+```
+
+### **Tokens**
+
+Now that we have permissions it is time to let your dApp know. For communicating information about your user, JWT tokens are being used. SIWT provides an abstraction to make it more convenenient to work with them. It does expect you to generate secure secrets and keep them in your .env file.
+
+
+## Getting started with your project
+The SIWT library is available through `npm`. For contributions and building it locally see [contributing.md](./CONTRIBUTING.md).
+```
+npm install @stakenow/siwt
+```
+
+### **Implementing the ui**
+Sign In With Tezos will require a ui to interact with the user and an authentication API to make the necessary verifications and hand out permissions. On the ui we will make use of [Beacon]('https://www.walletbeacon.io/') to interact with the user's wallet.
+
+#### **Connecting the wallet**
 ```
 const walletPermissions = await dAppClient.requestPermissions()
 ```
-This will give your app permissions to interact with your user's wallet. It will give your app access to the user's public key, address and wallet information.
+This will give your dApp permissions to interact with your user's wallet. It provides access to the user's information regarding public key, address and wallet.
 
-#### Create the message
+#### **Creating the message**
 ```
 const messagePayload = createMessagePayload({
   dappUrl: 'siwt.stakenow.fi',
@@ -85,18 +143,18 @@ This will create a message payload that looks like this:
 }
 ```
 
-The human readable message should look as follows
+The human readable message presents as follows:
 
 ```
 Tezos Signed Message: DAPP_URL DATE DAPP_URL would like you to sign in with USER_ADDRESS.
 ```
 
-#### Requesting the signature
+#### **Requesting the signature**
 ```
 const signature = await dAppClient.requestSignPayload(messagePayload)
 ```
 
-#### Sign the user into your app
+#### **Signing the user into your dApp**
 ```
 const signedIn = await signIn('API_URL')({
   pk: walletPermissions.accountInfo.pk,
@@ -105,42 +163,36 @@ const signedIn = await signIn('API_URL')({
 })
 ```
 
-#### Using tokens
-With a successful sign in the server will return a set of tokens:
+#### **Token types**
+With a successful sign in the server will return the following set of tokens:
 
-**Access token**
+_Access Token:_
+
 Use the access token for authorization upon each protected API call. Add it as a bearer token in the `authorization` header of each API call.
 
-**Refresh token**
-If you have implemented a refresh token strategy use this token to obtain a new access token
+_Refresh Token:_
 
-**ID Token**
-The ID token is used to obtain some information about the user that is signed in. Because it's a valid JWT token you can use any jwt decoding library to decode the token and use it's contents.
+If you have implemented a refresh token strategy use this token to obtain a new access token.
 
-### Implementing the server
-#### Verifying the signature
-Just having the user sign this message is not enough. We also have to make sure the signature is valid before allowing the user to use our app.
+_ID Token:_
 
-This happens on the server and requires only the following:
+The ID token is used to obtain some information about the user that is signed in. Because it is a valid JWT token you can use any jwt decoding library to decode the token and use it's contents.
+
+### **Implementing the server**
+#### **Verifying the signature**
+Just having the user sign this message is not enough. We also have to make sure the signature is valid before allowing the user to use our dApp. This happens on the server and requires only the following statement:
 
 ```
 const isValidSignature = verifySignature(message, pk, signature)
 ```
 
-#### Creating tokens
+#### **Creating tokens**
 
-Now that we have verified identity, we can let our application know all is good in the world. We do this using JSON Web Tokens or jwt for short.
+Now that you have verified the identity, you can let your application know all is good in the world. You do this using JSON Web Tokens or JWT for short. For more information about JWT check the [official website](https://jwt.io). You will use three different types of tokens:
 
-For more information about JWT check https://jwt.io.
+_Access Token:_
 
-We'll use 3 different types of tokens:
-
-#### Access Token
-The access token will be used for token based authentication for the API.
-
-To create an access token the user's PKH is required, but more claims are supported by supplying a claims object.
-
-The access token is valid for 15 minutes
+The access token will be used for token based authentication for the API. To create an access token the user's pkh is required, but more claims are supported by supplying a claims object. The access token is valid for 15 minutes.
 
 ```
 import { generateAccessToken } from '@stakenow/siwt'
@@ -156,21 +208,18 @@ const accessToken = generateAccessToken({
 })
 ```
 
-On each protected api route you'll have to verify if the access token is still valid.
-
-Therefore the token should be sent with each call to the api in an Authorization header as a Bearer token and verified:
+On each protected API route you will have to verify if the access token is still valid. Therefore the token should be sent with each call to the API in an authorization header as a bearer token and be verified:
 
 ```
 const accessToken = req.headers.authorization.split(' ')[1]
 const pkh = verifyAccessToken(accessToken)
 
 ```
-If the accessToken is valid, you'll receive the pkh of the valid user. Validate this with the account data that's being requested. If everything checks out, supply the user with the requested API information.
+If the access token is valid, you will receive the pkh of the valid user. Validate this with the account data that is being requested. If everything checks out, supply the user with the requested API information. If the access token is invalid, the pkh will be false. Thus the user should not get an API response.
 
-If the accessToken is invalid, pkh will be false. The user should not get an API response.
+_Refresh Token:_
 
-#### Refresh Token
-By default the access token is valid for 15 minutes only. After this the user will no longer be able to request information from the API. To make sure you won't need to make the user sign another message to retrieve a valid access token, you can implement a refresh token flow.
+By default the access token is only valid for 15 minutes. After this time the user will no longer be able to request information from the API. To make sure you will not need to make the user sign another message to retrieve a valid access token, you can implement a refresh token flow.
 
 Creating a refresh token:
 ```
@@ -179,7 +228,7 @@ import { generateRefreshToken } from '@stakenow/siwt'
 generateRefreshToken('PKH OF THE USER')
 ```
 
-Verifying the refresh token
+Verifying the refresh token:
 ```
 import { verifyRefreshToken } from '@stakenow/siwt'
 
@@ -187,16 +236,15 @@ try {
   verifyRefreshToken('REFRESH TOKEN')
   // Refresh the access token for the user
 } catch {
-  // AccessToken cannot be renewd. Log your user out and request a new signed message to log in again.
+  // AccessToken cannot be renewed. Log your user out and request a new signed message to log in again.
 }
 ```
 
-More information on [refresh tokens](https://auth0.com/docs/secure/tokens/refresh-tokens)
+Get more information on refresh tokens in general [here](https://auth0.com/docs/secure/tokens/refresh-tokens).
 
-#### ID Token
-The ID token is an optional token, used for some extra information about your user. It is long lived and can be used to maintain some information about your user in your application.
+_ID Token:_
 
-It requires the user's pkh, and takes claims and extra userInfo optionally:
+The ID token is an optional token, used for some extra information about your user. It is long lived and can be used to maintain some information about the user in your application. It requires the user's pkh, and takes claims and extra optionalUserInfo:
 
 ```
 import { generateIdToken } from '@stakenow/siwt'
@@ -216,7 +264,7 @@ generateIdToken({
 })
 ```
 
-### Putting it all together
+### **Putting it all together**
 
 *index.js*
 
@@ -332,7 +380,7 @@ window.onload = init
             <div class="public-data-content-container"></div>
             <button class="load-public-data-button">Load public data</button>
           </div>
-          <div class="basis-1/2">
+          <div>
             <h2>Protected data:</h2>
             <div class="protected-data-content-container"></div>
             <button class="load-private-data-button">Load private data</button>
@@ -344,12 +392,11 @@ window.onload = init
   </body>
 </html>
 ```
+> For the full setup including the build process check out the demo folder.
 
-*For the full setup including build process check the demo folder*
+### **Implementing your authorization API**
 
-### Implementing your authorization API (aka the backend)
-
-The library relies on your signin endpoint to be called `/signin`, which is a `POST` request that takes the following body: 
+The library relies in the backend on your signin endpoint to be called `/signin`, which is a `POST` request that takes the following body: 
 ```
 {
   pk: 'USER ADDRESS',
@@ -358,7 +405,7 @@ The library relies on your signin endpoint to be called `/signin`, which is a `P
 }
 ```
 
-For this example we'll write this endpoint in Node.js using Express:
+For this example you will write this endpoint in Node.js using Express:
 
 ```
 const express = require('express')
@@ -392,7 +439,7 @@ const authenticate = async (req, res, next) => {
           pkh,
         },
         test: {
-          comparator: '=',
+          comparator: '>=',
           value: 1,
         },
       })
@@ -413,7 +460,8 @@ app.post('/signin', (req, res) => {
   try {
     const isValidSignature = verifySignature(message, pk, signature)
     if (isValidSignature) {
-      // when a user provided a valid signature, we can obtain and return the required information about the user.
+      // when a user provided a valid signature, we can obtain and
+      // return the required information about the user.
 
       // the usage of claims is supported but not required.
       const claims = {
@@ -422,20 +470,24 @@ app.post('/signin', (req, res) => {
         azp: 'https://siwtdemo.stakenow.fi',
       }
 
-      // the minimum we need to return is an access token that allows the user to access the api. The pkh is required, extra claims are optional
+      // the minimum we need to return is an access token that
+      // allows the user to access the API. The pkh is required,
+      // extra claims are optional.
       const accessToken = generateAccessToken({ pkh, claims })
 
-      // we can use a refresh token to allow the access token to be refreshed without the user needing to log in again
+      // we can use a refresh token to allow the access token to
+      // be refreshed without the user needing to log in again.
       const refreshToken = generateRefreshToken(pkh)
 
-      // we can use a long-lived ID token to return some personal information about the user to the UI.
+      // we can use a long-lived ID token to return some personal
+      // information about the user to the UI.
       const access = queryAccessControl({
         contractAddress: 'KT1',
         parameters: {
           pkh,
         },
         test: {
-          comparator: '=',
+          comparator: '>=',
           value: 1,
         },
       })
@@ -474,40 +526,59 @@ app.listen(port, () => {
 })
 ```
 
-## Running the demo
-### Add environment variables
-For the demo you should have some variables.
+## Run the demo
+### **Clone the project**
+ ```
+git clone https://github.com/StakeNow/SIWT.git
+cd SIWT
+ ```
+### **Add environment variables**
+For the demo you will need to create your personal SECRETS which should be sufficently long, random and not easy to guess. For the demo it is not safety relevant but for your project please refer to [this documentation](https://jwt.io) regarding their requirements.
 
-Create an file ```.env``` in the root folder:
+Create an ```.env``` file in the root folder with the following content:
 ```
 ACCESS_TOKEN_SECRET=SECRET
 REFRESH_TOKEN_SECRET=SECRET
 ID_TOKEN_SECRET=SECRET
 ```
 
-### Build the SIWT Library
-Currently the demo is setup to run with a local distribution of SIWT. So until it's available through NPM we have to build the library first.
-
-From the root folder run:
+### **Start the demo**
+Beginning from the root folder run:
 ```
 npm install
-npm run build
 ```
 
-### Start the server
-From the root folder run:
+### **Start the server**
 ```
 npm run demo:server:start
 ``` 
 
-If everything went correctly you should see the following message:
+If successful you should see the following message:
 
-`SIWT server app listening on port 3000`
+```
+SIWT server app listening on port 3000
+```
 
-### Build and run the ui
+### **Build and run the ui**
 In a new terminal window from the root folder run:
 ```
 npm run demo:ui:start
 ```
+The browser should open automatically. If not just open http://localhost:8080. Note that if port 8080 is already in use the application increments to 8081.
 
 __Happy Demo!__
+
+## Future outlook
+
+This demo proves that the concept of Signing In With Tezos to verify ownership of your pkh (public key hash aka address), and requiring ownership of certain assets (e.g. NFTs) to gain access to protected resources, works efficiently. This however is just the start of a larger discussion we would love to continue building with the Tezos community regarding these follow up topics:
+
+- Standardisation of the message to be signed when signing in
+- Standardisation of permission standards (ie. jwt claims/contents)
+- Creating specialized smart contract(s) that facilitate the derivation of a user's permissions, for instance by using views
+- Create a swap contract to directly obtain an NFT for a user to buy access to integrate in each individual project
+- Expanding the accessControlQuery to allow for more extensive requirements
+- Either remove or improve the use of indexers for retrieving accessControlQuery requirements
+- Improving the abstraction created by the SIWT Package
+
+## Get in contact
+If you liked what you have seen here and want to get in touch with us just send us an email to info@stakenow.fi - any questions regarding this project can be initiated through the an Issue here on GitHub or by asking us directly in our [Discord](https://discord.com/invite/6J3bjhkpxm?utm_source=StakeNow+Discord+LP&utm_medium=Landing+Page&utm_campaign=StakeNow.Fi+Launch).
