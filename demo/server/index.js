@@ -29,7 +29,7 @@ const authenticate = async (req, res, next) => {
           pkh,
         },
         test: {
-          comparator: '=',
+          comparator: '>=',
           value: 1,
         },
       })
@@ -72,7 +72,7 @@ app.post('/signin', async (req, res) => {
           pkh,
         },
         test: {
-          comparator: '=',
+          comparator: '>=',
           value: 1,
         },
       })

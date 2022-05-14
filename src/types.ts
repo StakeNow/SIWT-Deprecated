@@ -24,6 +24,7 @@ export interface TokenPayload {
 
 export enum Comparator {
   equals = '=',
+  greater = '>=',
 }
 
 export interface AccessControlQuery {

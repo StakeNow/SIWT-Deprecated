@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import type { sign as Sign, verify as Verify } from 'jsonwebtoken'
 import axios, { AxiosInstance } from 'axios'
 import https from 'https'
-import { add, assoc, equals, filter, objOf, pipe, prop, propOr, propEq } from 'ramda'
+import { add, assoc, equals, filter, objOf, pipe, prop, propOr, propEq, gte } from 'ramda'
 
 import { AccessControlQuery, SignInMessageData, SignInPayload, TokenPayload, Comparator } from './types'
 import { constructSignPayload, generateMessageData, packMessagePayload } from './utils'
@@ -102,6 +102,7 @@ export const queryAccessControl = async ({
   const tokenMetadata = filter(propEq('value', pkh as string), storage)
   const compareList = {
     [Comparator.equals]: equals(prop('length')(tokenMetadata))(value),
+    [Comparator.greater]: gte(prop('length')(tokenMetadata), value),
   }
 
   return {

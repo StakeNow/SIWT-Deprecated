@@ -49,7 +49,12 @@ const getPublicData = () => {
 const login = async () => {
   try {
     // request wallet permissions with Beacon dAppClient
-    const walletPermissions = await dAppClient.requestPermissions()
+    const walletPermissions = await dAppClient.requestPermissions({
+      network: {
+        type: NetworkType.ITHACANET,
+        rpcUrl: 'https://rpc.tzkt.io/ithacanet',
+      },
+    })
 
     // create the message to be signed
     const messagePayload = siwt.createMessagePayload({
