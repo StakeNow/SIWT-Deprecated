@@ -510,4 +510,14 @@ In a new terminal window from the root folder run:
 npm run demo:ui:start
 ```
 
-__Happy Demo!__
+# Future Outlook
+
+This demo proves that the concept of Signing In with Tezos to verify ownership of your pkh (public key hash aka address), and requiring ownership of certain assets (NFTS) to gain access to protected resources, works efficiently. This however is just the start of a larger discussion we'd love to continue building with the Tezos community:
+
+- Standardisation of the message to be signed when signing in
+- Standardisation of permission standards (ie. jwt claims/contents)
+- Creating specialized smart contract(s) that facilitate the derivation of a user's permissions, for instance by using views
+- Create a swap contract to directly obtain an NFT for a user to buy access
+- Expanding the accessControlQuery to allow for more extensive requirements
+- Either remove or improve the use of indexers for retrieving accessControlQuery requirements
+- Improving the abstraction created by the SIWT Package
