@@ -6,7 +6,6 @@ import json from 'rollup-plugin-json'
 const pkg = require('./package.json')
 const libraryName = 'siwt'
 
-
 export default {
   input: `src/${libraryName}.ts`,
   output: { file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },

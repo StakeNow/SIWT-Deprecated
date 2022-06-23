@@ -30,6 +30,7 @@ Sign In With Tezos (SIWT) is a library that supports the development of your dec
     - [**Start the demo**](#start-the-demo)
     - [**Start the server**](#start-the-server)
     - [**Build and run the ui**](#build-and-run-the-ui)
+  - [Built with](#built-with)
   - [Future outlook](#future-outlook)
   - [Get in contact](#get-in-contact)
 
@@ -567,6 +568,9 @@ npm run demo:ui:start
 The browser should open automatically. If not just open http://localhost:8080. Note that if port 8080 is already in use the application increments to 8081.
 
 __Happy Demo!__
+
+## Built with
+- TZKT API: https://tzkt.io
 
 ## Future outlook
 
