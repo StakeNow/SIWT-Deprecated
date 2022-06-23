@@ -1,8 +1,26 @@
-import { char2Bytes } from '@taquito/utils'
-import { always, join, pipe, prop } from 'ramda'
+import { char2Bytes, validateAddress } from '@taquito/utils'
+import {
+  always,
+  cond,
+  equals,
+  filter,
+  head,
+  join,
+  map,
+  path,
+  pathEq,
+  pathOr,
+  pipe,
+  pluck,
+  prop,
+  propEq,
+  propOr,
+  T,
+  uniq,
+} from 'ramda'
 
 import { TEZOS_SIGNED_MESSAGE_PREFIX } from '../constants'
-import { MessagePayloadData, SignInMessageData } from '../types'
+import { AssetContractType, MessagePayloadData, SignInMessageData } from '../types'
 
 export const generateMessageData = ({ dappUrl, pkh }: SignInMessageData) => ({
   dappUrl,
@@ -30,3 +48,32 @@ export const packMessagePayload = (messageData: MessagePayloadData): string =>
     (bytes: string) => ['05', '01', prop('length')(bytes).toString(16).padStart(8, '0'), bytes],
     join(''),
   )(messageData)
+
+export const filterOwnedAssetsFromNFTAssetContract = (pkh: string) => filter(propEq('value', pkh))
+export const filterOwnedAssetsFromSingleAssetContract = (pkh: string) => filter(propEq('key', pkh))
+export const filterOwnedAssetsFromMultiAssetContract = (pkh: string) => filter(pathEq(['key', 'address'], pkh))
+
+export const determineContractAssetType = pipe(
+  head,
+  cond([
+    [pipe(prop('key'), validateAddress, equals(3)), always(AssetContractType.single)],
+    [pipe(propOr('', 'value'), validateAddress, equals(3)), always(AssetContractType.nft)],
+    [pipe(path(['key', 'address']), validateAddress, equals(3)), always(AssetContractType.multi)],
+    [T, always(AssetContractType.unknown)],
+  ]),
+)
+
+export const filterOwnedAssets = (pkh: string) =>
+  cond([
+    [pipe(determineContractAssetType, equals(AssetContractType.nft)), filterOwnedAssetsFromNFTAssetContract(pkh) as any],
+    [pipe(determineContractAssetType, equals(AssetContractType.multi)), filterOwnedAssetsFromMultiAssetContract(pkh) as any],
+    [pipe(determineContractAssetType, equals(AssetContractType.single)), filterOwnedAssetsFromSingleAssetContract(pkh) as any],
+    [T, always([])],
+  ])
+
+export const getOwnedAssetIds = cond([
+  [pipe(determineContractAssetType, equals(AssetContractType.nft)), pipe(map(propOr('', 'key')), uniq)],
+  [pipe(determineContractAssetType, equals(AssetContractType.multi)), pipe(map(pathOr('', ['key', 'nat'])), uniq)],
+  [pipe(determineContractAssetType, equals(AssetContractType.single)), pipe(map(propOr('', 'value')), uniq)],
+  [T, always([])],
+])
