@@ -11,7 +11,6 @@ import {
   pathEq,
   pathOr,
   pipe,
-  pluck,
   prop,
   propEq,
   propOr,

@@ -1,3 +1,4 @@
+import { ACCESS_TOKEN_EXPIRATION } from './constants'
 import { validPkh } from './fixtures'
 import * as SUT from './siwt'
 import { Comparator, Network } from './types'
@@ -94,12 +95,10 @@ describe('./siwt', () => {
       const expectedSignPayload = {
         sub: 'PKH',
         iss: 'ISSUER',
-        iat: expect.any(Number),
-        exp: expect.any(Number),
       }
 
       expect(result).toEqual('JWT')
-      expect(signStub).toHaveBeenCalledWith(expectedSignPayload, 'ACCESS TOKEN SECRET')
+      expect(signStub).toHaveBeenCalledWith(expectedSignPayload, 'ACCESS TOKEN SECRET', { expiresIn: ACCESS_TOKEN_EXPIRATION })
     })
   })
 

@@ -66,10 +66,9 @@ export const _generateAccessToken =
       {
         ...claims,
         sub: pkh,
-        iat: Date.now(),
-        exp: add(Date.now(), ACCESS_TOKEN_EXPIRATION),
       },
       process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: ACCESS_TOKEN_EXPIRATION }
     )
 export const generateAccessToken = _generateAccessToken(jwt?.sign)
 
