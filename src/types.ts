@@ -1,3 +1,8 @@
+export enum Network {
+  mainnet = 'mainnet',
+  ithacanet = 'ithacanet'
+}
+
 export interface MessagePayloadData {
   dappUrl: string
   timestamp: string
@@ -35,8 +40,8 @@ export enum AssetContractType {
 }
 
 export interface AccessControlQuery {
-  nodeAddress?: string
   contractAddress: string
+  network?: Network 
   parameters: {
     pkh?: string
   }
