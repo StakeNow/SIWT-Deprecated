@@ -1,3 +1,8 @@
+export const API_URLS = {
+  mainnet: 'api.tzkt.io',
+  ithacanet: 'api.ithacanet.tzkt.io',
+}
+
 export const TEZOS_SIGNED_MESSAGE_PREFIX = 'Tezos Signed Message:'
 
 export const ACCESS_TOKEN_EXPIRATION = 900 // 15 mins

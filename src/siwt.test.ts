@@ -1,5 +1,6 @@
+import { validPkh } from './fixtures'
 import * as SUT from './siwt'
-import { Comparator } from './types'
+import { Comparator, Network } from './types'
 
 describe('./siwt', () => {
   describe('createMessagePayload', () => {
@@ -185,12 +186,12 @@ describe('./siwt', () => {
 
   describe('queryAccessControl', () => {
     it('should past test when user has token', async () => {
-      const storageStub = jest.fn().mockReturnValue([{ value: 'ADDRESS', key: '1' }])
+      const storageStub = () => jest.fn().mockResolvedValue([{ value: validPkh, key: 1 }])
 
       const result = await SUT._queryAccessControl(storageStub)({
         contractAddress: 'CONTRACT',
         parameters: {
-          pkh: 'ADDRESS',
+          pkh: validPkh,
         },
         test: {
           comparator: Comparator.equals,
@@ -200,22 +201,24 @@ describe('./siwt', () => {
 
       expect(result).toEqual({
         contractAddress: 'CONTRACT',
-        pkh: 'ADDRESS',
-        tokens: ['1'],
+        pkh: validPkh,
+        network: 'ithacanet',
+        tokens: [1],
         passedTest: true,
       })
     })
 
     it('should past test and return all tokens of the user', async () => {
-      const storageStub = jest.fn().mockReturnValue([
-        { value: 'ADDRESS', key: '1' },
-        { value: 'ADDRESS', key: '2' },
+      const storageStub = () => jest.fn().mockResolvedValue([
+        { value: validPkh, key: 1 },
+        { value: validPkh, key: 2 },
       ])
 
       const result = await SUT._queryAccessControl(storageStub)({
         contractAddress: 'CONTRACT',
+        network: Network.mainnet,
         parameters: {
-          pkh: 'ADDRESS',
+          pkh: validPkh,
         },
         test: {
           comparator: Comparator.greater,
@@ -225,19 +228,20 @@ describe('./siwt', () => {
 
       expect(result).toEqual({
         contractAddress: 'CONTRACT',
-        pkh: 'ADDRESS',
-        tokens: ['1', '2'],
+        pkh: validPkh,
+        network: 'mainnet',
+        tokens: [1, 2],
         passedTest: true,
       })
     })
 
     it('should past test when user has token', async () => {
-      const storageStub = jest.fn().mockReturnValue([{ value: 'ADDRESS', key: '1' }])
+      const storageStub = () => jest.fn().mockResolvedValue([{ value: validPkh, key: 1 }])
 
       const result = await SUT._queryAccessControl(storageStub)({
         contractAddress: 'CONTRACT',
         parameters: {
-          pkh: 'ADDRESS',
+          pkh: validPkh,
         },
         test: {
           comparator: Comparator.equals,
@@ -247,19 +251,20 @@ describe('./siwt', () => {
 
       expect(result).toEqual({
         contractAddress: 'CONTRACT',
-        pkh: 'ADDRESS',
-        tokens: ['1'],
+        network: 'ithacanet',
+        pkh: validPkh,
+        tokens: [1],
         passedTest: true,
       })
     })
 
-    it('should fail when there is no data', async () => {
-      const storageStub = jest.fn().mockReturnValue([])
+    it('should fail when there is no storage', async () => {
+      const storageStub = () => jest.fn().mockResolvedValue([])
 
       const result = await SUT._queryAccessControl(storageStub)({
         contractAddress: 'CONTRACT',
         parameters: {
-          pkh: 'ADDRESS',
+          pkh: validPkh,
         },
         test: {
           comparator: Comparator.equals,
@@ -269,7 +274,8 @@ describe('./siwt', () => {
 
       expect(result).toEqual({
         contractAddress: 'CONTRACT',
-        pkh: 'ADDRESS',
+        pkh: validPkh,
+        network: 'ithacanet',
         tokens: [],
         passedTest: false,
       })

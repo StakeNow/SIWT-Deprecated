@@ -2,11 +2,23 @@ import { verifySignature as taquitoVerifySignature } from '@taquito/utils'
 import jwt from 'jsonwebtoken'
 import type { sign as Sign, verify as Verify } from 'jsonwebtoken'
 import axios, { AxiosInstance } from 'axios'
-import { add, assoc, equals, filter, objOf, pipe, prop, pluck, propEq, gte } from 'ramda'
+import { add, assoc, equals, objOf, pipe, prop, gte } from 'ramda'
 
-import { AccessControlQuery, SignInMessageData, SignInPayload, TokenPayload, Comparator, TokenMetadata } from './types'
+import {
+  AccessControlQuery,
+  SignInMessageData,
+  SignInPayload,
+  TokenPayload,
+  Comparator,
+  ContractLedgerItem,
+  Network,
+} from './types'
 import { constructSignPayload, generateMessageData, packMessagePayload } from './utils'
-import { ACCESS_TOKEN_EXPIRATION, ID_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } from './constants'
+import { ACCESS_TOKEN_EXPIRATION, API_URLS, ID_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } from './constants'
+import {
+  filterOwnedAssets,
+  getOwnedAssetIds,
+} from './utils/siwt.utils'
 
 export const createMessagePayload = (signatureRequestData: SignInMessageData) =>
   pipe(
@@ -79,34 +91,39 @@ export const _verifyRefreshToken = (verify: typeof Verify) => (refreshToken: str
   verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string)
 export const verifyRefreshToken = _verifyRefreshToken(jwt?.verify)
 
-export const getContractStorage = (contractAddress: string) =>
+export const getContractStorage = (network: Network) => (contractAddress: string) =>
   axios
-    .get(`https://api.ithacanet.tzkt.io/v1/contracts/${contractAddress}/bigmaps/ledger/keys?limit=10000`)
+    .get(`https://${API_URLS[network]}/v1/contracts/${contractAddress}/bigmaps/ledger/keys?limit=10000`)
     .then(prop('data'))
     .catch(console.log)
 
 export const _queryAccessControl =
-  (contractStorage: (x: string) => Promise<TokenMetadata[]>) =>
-  async ({ contractAddress, parameters: { pkh }, test: { comparator, value } }: AccessControlQuery) => {
+  (contractStorage: (network: Network) => (x: string) => Promise<ContractLedgerItem[]>) =>
+  async ({ contractAddress, network = Network.ithacanet, parameters: { pkh }, test: { comparator, value } }: AccessControlQuery) => {
     try {
-      const storage = await contractStorage(contractAddress)
-      const tokenMetadata = filter(propEq('value', pkh as string), storage)
+      const storage = await contractStorage(network)(contractAddress)
+      const ownedAssets = filterOwnedAssets(pkh as string)(storage)
+      
       const compareList = {
-        [Comparator.equals]: equals(prop('length')(tokenMetadata))(value),
-        [Comparator.greater]: gte(prop('length')(tokenMetadata), value),
+        [Comparator.equals]: equals(prop('length')(ownedAssets))(value),
+        [Comparator.greater]: gte(prop('length')(ownedAssets) as number)(value),
       }
+
+      const ownedAssetIds = getOwnedAssetIds(ownedAssets)
 
       return {
         contractAddress,
+        network,
         pkh,
-        tokens: pluck('key')(tokenMetadata),
+        tokens: ownedAssetIds,
         passedTest: compareList[comparator],
       }
     } catch {
       return {
         contractAddress,
         pkh,
-        tokenId: [],
+        network,
+        tokens: [],
         passedTest: false,
       }
     }

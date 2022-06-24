@@ -1,3 +1,8 @@
+export enum Network {
+  mainnet = 'mainnet',
+  ithacanet = 'ithacanet'
+}
+
 export interface MessagePayloadData {
   dappUrl: string
   timestamp: string
@@ -27,9 +32,16 @@ export enum Comparator {
   greater = '>=',
 }
 
+export enum AssetContractType {
+  single = 'Single',
+  multi = 'Multi',
+  nft = 'Nft',
+  unknown = 'Unknown',
+}
+
 export interface AccessControlQuery {
-  nodeAddress?: string
   contractAddress: string
+  network?: Network 
   parameters: {
     pkh?: string
   }
@@ -39,12 +51,17 @@ export interface AccessControlQuery {
   }
 }
 
-export type TokenMetadata = {
+interface MultiAssetKey {
+  nat: number
+  address: string
+}
+
+export type ContractLedgerItem = {
   id?: number
   active?: boolean
   hash?: string
-  value: string
-  key: string
+  value: string | number
+  key: string | number | MultiAssetKey
   firstLevel?: number
   lastLevel?: number
   updates?: number
