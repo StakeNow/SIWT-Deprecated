@@ -400,8 +400,8 @@ window.onload = init
 The library relies in the backend on your signin endpoint to be called `/signin`, which is a `POST` request that takes the following body: 
 ```
 {
-  pk: 'USER ADDRESS',
-  pkh: 'USER PUBLIC KEY',
+  pk: 'USER PUBLIC KEY',
+  pkh: 'USER ADDRESS',
   signature: 'MESSAGE SIGNATURE',
 }
 ```
