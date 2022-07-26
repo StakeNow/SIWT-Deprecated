@@ -7,11 +7,11 @@ import './style.css'
 
 const dAppClient = new DAppClient({
   name: 'SIWT Demo',
-  preferredNetwork: NetworkType.ITHACANET,
+  preferredNetwork: NetworkType.GHOSTNET,
 })
 
 const state = { accessToken: '' }
-const API_URL = process.env.API_URL || 'http://localhost:3000'
+const API_URL = process.env.API_URL || 'https://api.siwtdemo.stakenow.fi'
 
 const setBackground = status => {
   const DemoContainer = document.getElementsByClassName('demo-container')[0]
@@ -103,8 +103,8 @@ const login = async () => {
     // request wallet permissions with Beacon dAppClient
     const walletPermissions = await dAppClient.requestPermissions({
       network: {
-        type: NetworkType.ITHACANET,
-        rpcUrl: 'https://rpc.tzkt.io/ithacanet',
+        type: NetworkType.GHOSTNET,
+        rpcUrl: 'https://rpc.tzkt.io/ghostnet',
       },
     })
 
