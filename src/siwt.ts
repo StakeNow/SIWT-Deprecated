@@ -98,7 +98,7 @@ export const getContractStorage = (network: Network) => (contractAddress: string
 
 export const _queryAccessControl =
   (contractStorage: (network: Network) => (x: string) => Promise<ContractLedgerItem[]>) =>
-  async ({ contractAddress, network = Network.ithacanet, parameters: { pkh }, test: { comparator, value } }: AccessControlQuery) => {
+  async ({ contractAddress, network = Network.ghostnet, parameters: { pkh }, test: { comparator, value } }: AccessControlQuery) => {
     try {
       const storage = await contractStorage(network)(contractAddress)
       const ownedAssets = filterOwnedAssets(pkh as string)(storage)

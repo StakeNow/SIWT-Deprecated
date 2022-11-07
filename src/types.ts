@@ -1,6 +1,6 @@
 export enum Network {
   mainnet = 'mainnet',
-  ithacanet = 'ithacanet'
+  ghostnet = 'ghostnet'
 }
 
 export interface MessagePayloadData {
