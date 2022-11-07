@@ -98,7 +98,9 @@ describe('./siwt', () => {
       }
 
       expect(result).toEqual('JWT')
-      expect(signStub).toHaveBeenCalledWith(expectedSignPayload, 'ACCESS TOKEN SECRET', { expiresIn: ACCESS_TOKEN_EXPIRATION })
+      expect(signStub).toHaveBeenCalledWith(expectedSignPayload, 'ACCESS TOKEN SECRET', {
+        expiresIn: ACCESS_TOKEN_EXPIRATION,
+      })
     })
   })
 
@@ -208,10 +210,11 @@ describe('./siwt', () => {
     })
 
     it('should past test and return all tokens of the user', async () => {
-      const storageStub = () => jest.fn().mockResolvedValue([
-        { value: validPkh, key: 1 },
-        { value: validPkh, key: 2 },
-      ])
+      const storageStub = () =>
+        jest.fn().mockResolvedValue([
+          { value: validPkh, key: 1 },
+          { value: validPkh, key: 2 },
+        ])
 
       const result = await SUT._queryAccessControl(storageStub)({
         contractAddress: 'CONTRACT',

@@ -112,6 +112,10 @@ const login = async () => {
     const messagePayload = siwt.createMessagePayload({
       dappUrl: 'siwt.stakenow.fi',
       pkh: walletPermissions.address,
+      options: {
+        termsAndConditions: true,
+        privacyPolicy: true,
+      },
     })
 
     // request the signature

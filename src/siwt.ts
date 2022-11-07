@@ -2,7 +2,7 @@ import { verifySignature as taquitoVerifySignature } from '@taquito/utils'
 import jwt from 'jsonwebtoken'
 import type { sign as Sign, verify as Verify } from 'jsonwebtoken'
 import axios, { AxiosInstance } from 'axios'
-import { add, assoc, equals, objOf, pipe, prop, gte } from 'ramda'
+import { add, assoc, equals, objOf, pipe, prop, gte, tap } from 'ramda'
 
 import {
   AccessControlQuery,
@@ -15,10 +15,7 @@ import {
 } from './types'
 import { constructSignPayload, generateMessageData, packMessagePayload } from './utils'
 import { ACCESS_TOKEN_EXPIRATION, API_URLS, ID_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } from './constants'
-import {
-  filterOwnedAssets,
-  getOwnedAssetIds,
-} from './utils/siwt.utils'
+import { filterOwnedAssets, getOwnedAssetIds } from './utils/siwt.utils'
 
 export const createMessagePayload = (signatureRequestData: SignInMessageData) =>
   pipe(
@@ -68,7 +65,7 @@ export const _generateAccessToken =
         sub: pkh,
       },
       process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: ACCESS_TOKEN_EXPIRATION }
+      { expiresIn: ACCESS_TOKEN_EXPIRATION },
     )
 export const generateAccessToken = _generateAccessToken(jwt?.sign)
 
@@ -98,11 +95,16 @@ export const getContractStorage = (network: Network) => (contractAddress: string
 
 export const _queryAccessControl =
   (contractStorage: (network: Network) => (x: string) => Promise<ContractLedgerItem[]>) =>
-  async ({ contractAddress, network = Network.ithacanet, parameters: { pkh }, test: { comparator, value } }: AccessControlQuery) => {
+  async ({
+    contractAddress,
+    network = Network.ithacanet,
+    parameters: { pkh },
+    test: { comparator, value },
+  }: AccessControlQuery) => {
     try {
       const storage = await contractStorage(network)(contractAddress)
       const ownedAssets = filterOwnedAssets(pkh as string)(storage)
-      
+
       const compareList = {
         [Comparator.equals]: equals(prop('length')(ownedAssets))(value),
         [Comparator.greater]: gte(prop('length')(ownedAssets) as number)(value),

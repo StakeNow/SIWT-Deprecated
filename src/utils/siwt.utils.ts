@@ -21,11 +21,22 @@ import {
 import { TEZOS_SIGNED_MESSAGE_PREFIX } from '../constants'
 import { AssetContractType, MessagePayloadData, SignInMessageData } from '../types'
 
-export const generateMessageData = ({ dappUrl, pkh }: SignInMessageData) => ({
+export const generateMessageData = ({
+  dappUrl,
+  pkh,
+  options = { termsAndConditions: true, privacyPolicy: true },
+}: SignInMessageData) => ({
   dappUrl,
   timestamp: new Date().toISOString(),
-  message: `${dappUrl} would like you to sign in with ${pkh}. 
-  `,
+  message: `${dappUrl} would like you to sign in with ${pkh}. ${
+    propOr(false, 'termsAndConditions')(options) || propOr(false, 'privacyPolicy')(options)
+      ? 'By signing this message you accept '
+      : ''
+  }${propOr(false, 'termsAndConditions')(options) ? 'our Terms and Conditions' : ''}${
+    propOr(false, 'termsAndConditions')(options) && propOr(false, 'privacyPolicy')(options) ? ' and ' : ''
+  }${propOr(false, 'privacyPolicy')(options) ? 'our Privacy Policy' : ''}${
+    propOr(false, 'termsAndConditions')(options) || propOr(false, 'privacyPolicy')(options) ? '.' : ''
+  }`,
 })
 
 export const constructSignPayload = ({ payload, pkh }: { payload: string; pkh: string }) => ({
@@ -64,9 +75,18 @@ export const determineContractAssetType = pipe(
 
 export const filterOwnedAssets = (pkh: string) =>
   cond([
-    [pipe(determineContractAssetType, equals(AssetContractType.nft)), filterOwnedAssetsFromNFTAssetContract(pkh) as any],
-    [pipe(determineContractAssetType, equals(AssetContractType.multi)), filterOwnedAssetsFromMultiAssetContract(pkh) as any],
-    [pipe(determineContractAssetType, equals(AssetContractType.single)), filterOwnedAssetsFromSingleAssetContract(pkh) as any],
+    [
+      pipe(determineContractAssetType, equals(AssetContractType.nft)),
+      filterOwnedAssetsFromNFTAssetContract(pkh) as any,
+    ],
+    [
+      pipe(determineContractAssetType, equals(AssetContractType.multi)),
+      filterOwnedAssetsFromMultiAssetContract(pkh) as any,
+    ],
+    [
+      pipe(determineContractAssetType, equals(AssetContractType.single)),
+      filterOwnedAssetsFromSingleAssetContract(pkh) as any,
+    ],
     [T, always([])],
   ])
 

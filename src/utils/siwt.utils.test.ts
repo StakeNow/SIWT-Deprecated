@@ -217,7 +217,7 @@ describe('utils/siwt.utils', () => {
       [
         [
           {
-            key: { nat: 0, address: '' }, 
+            key: { nat: 0, address: '' },
             value: 0,
           },
         ],
@@ -245,9 +245,7 @@ describe('utils/siwt.utils', () => {
             value: validPkh,
           },
         ],
-        [
-          1
-        ],
+        [1],
       ],
       [
         [
@@ -264,9 +262,7 @@ describe('utils/siwt.utils', () => {
             value: 2,
           },
         ],
-        [
-          2, 3
-        ],
+        [2, 3],
       ],
       [
         [
@@ -275,14 +271,9 @@ describe('utils/siwt.utils', () => {
             value: 3,
           },
         ],
-        [
-          0
-        ],
+        [0],
       ],
-      [
-        [],
-        [],
-      ],
+      [[], []],
     ])(
       'should filter out the owned asset ids as expected',
       (ownedAssets: Partial<ContractLedgerItem[]>, expected: number[]) => {

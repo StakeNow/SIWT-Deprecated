@@ -1,6 +1,6 @@
 export enum Network {
   mainnet = 'mainnet',
-  ithacanet = 'ithacanet'
+  ithacanet = 'ithacanet',
 }
 
 export interface MessagePayloadData {
@@ -9,9 +9,15 @@ export interface MessagePayloadData {
   message: string
 }
 
+export interface SignInMessageDataOptions {
+  termsAndConditions: boolean
+  privacyPolicy: boolean
+}
+
 export interface SignInMessageData {
   dappUrl: string
   pkh: string
+  options?: SignInMessageDataOptions
 }
 
 export interface SignInPayload {
@@ -41,7 +47,7 @@ export enum AssetContractType {
 
 export interface AccessControlQuery {
   contractAddress: string
-  network?: Network 
+  network?: Network
   parameters: {
     pkh?: string
   }
