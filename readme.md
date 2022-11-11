@@ -58,7 +58,7 @@ Deconstructing this message will reveal the following format:
 
 - `05`: Indicates that this is a Micheline expression
 - `01`: Indicates it is converted to bytes
-- `000000bc`: Indicates the lenght of the message in hex
+- `000000bc`: Indicates the length of the message in hex
 - `54...`: Is the actual message in bytes
 
 __This message is now ready to be signed by the user.__
