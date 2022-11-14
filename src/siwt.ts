@@ -1,8 +1,14 @@
+/*
+ * Copyright (C) 2022, vDL Digital Ventures GmbH <info@vdl.digital>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
 import { verifySignature as taquitoVerifySignature } from '@taquito/utils'
 import jwt from 'jsonwebtoken'
 import type { sign as Sign, verify as Verify } from 'jsonwebtoken'
 import axios, { AxiosInstance } from 'axios'
-import { add, assoc, equals, objOf, pipe, prop, gte } from 'ramda'
+import { assoc, equals, objOf, pipe, prop, gte } from 'ramda'
 
 import {
   AccessControlQuery,

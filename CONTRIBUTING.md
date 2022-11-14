@@ -30,3 +30,12 @@ From the root folder run:
 npm install
 npm run build
 ```
+
+## Labeling your contributions
+SPDX IDs are used to communicate license information.
+Add your information to files you contribute to:
+
+`Copyright (C) 2022, You name <name@email.digital>`
+
+For more information see: https://spdx.dev/ids/
+
