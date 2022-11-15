@@ -32,10 +32,13 @@ npm run build
 ```
 
 ## Labeling your contributions
-SPDX IDs are used to communicate license information.
-Add your information to files you contribute to:
+SPDX IDs are used to communicate license information. Every file header starts with a comment inclduing the copyright information and the SPDX identifier
+referencing to the open source license with its full text in the root directory. Add your copyright information to files you contribute to by extending the list:
 
-`Copyright (C) 2022, You name <name@email.digital>`
+`Copyright (C) Year, Your Name <name@email.xyz>`
 
 For more information see: https://spdx.dev/ids/
 
+Every commit needs to be signed-off with a [Developer Certificate of Origin](https://developercertificate.org/).
+
+For more information see: https://github.com/apps/dco
