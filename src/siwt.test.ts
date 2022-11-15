@@ -209,7 +209,7 @@ describe('./siwt', () => {
       expect(result).toEqual({
         contractAddress: 'CONTRACT',
         pkh: validPkh,
-        network: 'ithacanet',
+        network: 'ghostnet',
         tokens: [1],
         passedTest: true,
       })
@@ -259,7 +259,7 @@ describe('./siwt', () => {
 
       expect(result).toEqual({
         contractAddress: 'CONTRACT',
-        network: 'ithacanet',
+        network: 'ghostnet',
         pkh: validPkh,
         tokens: [1],
         passedTest: true,
@@ -283,7 +283,7 @@ describe('./siwt', () => {
       expect(result).toEqual({
         contractAddress: 'CONTRACT',
         pkh: validPkh,
-        network: 'ithacanet',
+        network: 'ghostnet',
         tokens: [],
         passedTest: false,
       })
