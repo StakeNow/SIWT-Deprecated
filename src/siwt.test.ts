@@ -1,7 +1,7 @@
 import { ACCESS_TOKEN_EXPIRATION } from './constants'
 import { validPkh } from './fixtures'
 import * as SUT from './siwt'
-import { Comparator, Network } from './types'
+import { Comparator, ConditionType, Network } from './types'
 
 describe('./siwt', () => {
   describe('createMessagePayload', () => {
@@ -98,7 +98,9 @@ describe('./siwt', () => {
       }
 
       expect(result).toEqual('JWT')
-      expect(signStub).toHaveBeenCalledWith(expectedSignPayload, 'ACCESS TOKEN SECRET', { expiresIn: ACCESS_TOKEN_EXPIRATION })
+      expect(signStub).toHaveBeenCalledWith(expectedSignPayload, 'ACCESS TOKEN SECRET', {
+        expiresIn: ACCESS_TOKEN_EXPIRATION,
+      })
     })
   })
 
@@ -184,100 +186,213 @@ describe('./siwt', () => {
   })
 
   describe('queryAccessControl', () => {
-    it('should past test when user has token', async () => {
-      const storageStub = () => jest.fn().mockResolvedValue([{ value: validPkh, key: 1 }])
+    it('should pass test when user has token', async () => {
+      const getLedgerFromStorageStub = jest.fn().mockResolvedValue([{ value: validPkh, key: 1 }])
+      const getBalanceStub = jest.fn()
 
-      const result = await SUT._queryAccessControl(storageStub)({
-        contractAddress: 'CONTRACT',
+      const result = await SUT._queryAccessControl({
+        getLedgerFromStorage: getLedgerFromStorageStub,
+        getBalance: getBalanceStub,
+      })({
         parameters: {
           pkh: validPkh,
         },
         test: {
-          comparator: Comparator.equals,
+          contractAddress: 'CONTRACT',
+          type: ConditionType.nft,
+          comparator: Comparator.eq,
           value: 1,
         },
       })
-
       expect(result).toEqual({
-        contractAddress: 'CONTRACT',
         pkh: validPkh,
         network: 'ithacanet',
-        tokens: [1],
-        passedTest: true,
+        testResults: {
+          ownedTokenIds: [1],
+          passed: true,
+        },
       })
     })
 
-    it('should past test and return all tokens of the user', async () => {
-      const storageStub = () => jest.fn().mockResolvedValue([
+    it('should pass test and return all tokens of the user', async () => {
+      const getLedgerFromStorageStub = jest.fn().mockResolvedValue([
         { value: validPkh, key: 1 },
         { value: validPkh, key: 2 },
       ])
+      const getBalanceStub = jest.fn()
 
-      const result = await SUT._queryAccessControl(storageStub)({
-        contractAddress: 'CONTRACT',
+      const result = await SUT._queryAccessControl({
+        getLedgerFromStorage: getLedgerFromStorageStub,
+        getBalance: getBalanceStub,
+      })({
         network: Network.mainnet,
         parameters: {
           pkh: validPkh,
         },
         test: {
-          comparator: Comparator.greater,
+          contractAddress: 'CONTRACT',
+          type: ConditionType.nft,
+          comparator: Comparator.gt,
           value: 1,
         },
       })
 
       expect(result).toEqual({
-        contractAddress: 'CONTRACT',
         pkh: validPkh,
         network: 'mainnet',
-        tokens: [1, 2],
-        passedTest: true,
+        testResults: {
+          ownedTokenIds: [1, 2],
+          passed: true,
+        },
       })
     })
 
-    it('should past test when user has token', async () => {
-      const storageStub = () => jest.fn().mockResolvedValue([{ value: validPkh, key: 1 }])
+    it('should pass test when user has token', async () => {
+      const getLedgerFromStorageStub = jest.fn().mockResolvedValue([{ value: validPkh, key: 1 }])
+      const getBalanceStub = jest.fn()
 
-      const result = await SUT._queryAccessControl(storageStub)({
-        contractAddress: 'CONTRACT',
+      const result = await SUT._queryAccessControl({
+        getLedgerFromStorage: getLedgerFromStorageStub,
+        getBalance: getBalanceStub,
+      })({
         parameters: {
           pkh: validPkh,
         },
         test: {
-          comparator: Comparator.equals,
+          contractAddress: 'CONTRACT',
+          type: ConditionType.nft,
+          comparator: Comparator.eq,
           value: 1,
         },
       })
 
       expect(result).toEqual({
-        contractAddress: 'CONTRACT',
         network: 'ithacanet',
         pkh: validPkh,
-        tokens: [1],
-        passedTest: true,
+        testResults: {
+          ownedTokenIds: [1],
+          passed: true,
+        },
       })
     })
 
     it('should fail when there is no storage', async () => {
-      const storageStub = () => jest.fn().mockResolvedValue([])
+      const getLedgerFromStorageStub = jest.fn().mockResolvedValue([])
+      const getBalanceStub = jest.fn()
 
-      const result = await SUT._queryAccessControl(storageStub)({
-        contractAddress: 'CONTRACT',
+      const result = await SUT._queryAccessControl({
+        getLedgerFromStorage: getLedgerFromStorageStub,
+        getBalance: getBalanceStub,
+      })({
         parameters: {
           pkh: validPkh,
         },
         test: {
-          comparator: Comparator.equals,
+          contractAddress: 'CONTRACT',
+          type: ConditionType.nft,
+          comparator: Comparator.eq,
           value: 1,
         },
       })
 
       expect(result).toEqual({
-        contractAddress: 'CONTRACT',
         pkh: validPkh,
         network: 'ithacanet',
-        tokens: [],
-        passedTest: false,
+        testResults: {
+          ownedTokenIds: [],
+          passed: false,
+        },
       })
+    })
+
+    it('should fail when ledger cannot be fetched', async () => {
+      // when ... we cannot fetch the ledger
+      const query = {
+        parameters: {
+          pkh: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          type: ConditionType.nft,
+          comparator: Comparator.gte,
+          value: 1,
+        },
+      }
+
+      const getLedgerFromStorageStub = jest.fn().mockRejectedValue({})
+      const getBalanceStub = jest.fn()
+
+      const result = await SUT._queryAccessControl({
+        getLedgerFromStorage: getLedgerFromStorageStub,
+        getBalance: getBalanceStub,
+      })(query as any)
+
+      // then ... it should fail as expected
+      const expected = new Error('Checking NFT condition failed')
+      expect(result).toEqual(expected)
+    })
+
+    it('should allow access when user has sufficient balance', async () => {
+      // when ... we want to test if a user has sufficient XTZ
+      const balance = 10;
+      const query = {
+        parameters: {
+          pkh: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          type: ConditionType.xtzBalance,
+          comparator: Comparator.gte,
+          value: 1,
+        },
+      }
+
+      const getLedgerFromStorageStub = jest.fn()
+      const getBalanceStub = jest.fn().mockResolvedValue(balance)
+
+      const result = await SUT._queryAccessControl({
+        getLedgerFromStorage: getLedgerFromStorageStub,
+        getBalance: getBalanceStub,
+      })(query as any)
+
+      // then ... it should return a passed test as expected
+      const expected = {
+        network: Network.ithacanet,
+        pkh: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+        testResults: {
+          balance,
+          passed: true,
+        }
+      }
+      expect(result).toEqual(expected)
+    })
+    
+    it('should fail when balance cannot be fetched', async () => {
+      // when ... we cannot fetch XTZ balance
+      const balance = 0;
+      const query = {
+        parameters: {
+          pkh: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          type: ConditionType.xtzBalance,
+          comparator: Comparator.gte,
+          value: 1,
+        },
+      }
+
+      const getLedgerFromStorageStub = jest.fn()
+      const getBalanceStub = jest.fn().mockRejectedValue(balance)
+
+      const result = await SUT._queryAccessControl({
+        getLedgerFromStorage: getLedgerFromStorageStub,
+        getBalance: getBalanceStub,
+      })(query as any)
+
+      // then ... it should fail as expected
+      const expected = new Error('Checking XTZ Balance condition failed')
+      expect(result).toEqual(expected)
     })
   })
 })

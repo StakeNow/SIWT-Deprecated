@@ -2,23 +2,23 @@ import { verifySignature as taquitoVerifySignature } from '@taquito/utils'
 import jwt from 'jsonwebtoken'
 import type { sign as Sign, verify as Verify } from 'jsonwebtoken'
 import axios, { AxiosInstance } from 'axios'
-import { add, assoc, equals, objOf, pipe, prop, gte } from 'ramda'
+import { assoc, equals, objOf, pipe, prop, always, T, cond, pluck, pick, map } from 'ramda'
 
 import {
   AccessControlQuery,
   SignInMessageData,
   SignInPayload,
   TokenPayload,
-  Comparator,
-  ContractLedgerItem,
   Network,
+  ConditionType,
+  AccessControlQueryDependencies,
+  TestResult,
+  LedgerStorage,
 } from './types'
 import { constructSignPayload, generateMessageData, packMessagePayload } from './utils'
 import { ACCESS_TOKEN_EXPIRATION, API_URLS, ID_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } from './constants'
-import {
-  filterOwnedAssets,
-  getOwnedAssetIds,
-} from './utils/siwt.utils'
+import { validateNFTCondition, validateXTZBalanceCondition } from './utils/siwt.utils'
+import { match } from 'ts-pattern'
 
 export const createMessagePayload = (signatureRequestData: SignInMessageData) =>
   pipe(
@@ -68,7 +68,7 @@ export const _generateAccessToken =
         sub: pkh,
       },
       process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: ACCESS_TOKEN_EXPIRATION }
+      { expiresIn: ACCESS_TOKEN_EXPIRATION },
     )
 export const generateAccessToken = _generateAccessToken(jwt?.sign)
 
@@ -90,42 +90,44 @@ export const _verifyRefreshToken = (verify: typeof Verify) => (refreshToken: str
   verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string)
 export const verifyRefreshToken = _verifyRefreshToken(jwt?.verify)
 
-export const getContractStorage = (network: Network) => (contractAddress: string) =>
-  axios
-    .get(`https://${API_URLS[network]}/v1/contracts/${contractAddress}/bigmaps/ledger/keys?limit=10000`)
-    .then(prop('data'))
-    .catch(console.log)
+export const _getLedgerFromStorage =
+  (http: AxiosInstance) =>
+  ({ network, contract }: { network: Network; contract: string }) =>
+    http
+      .get(`https://${API_URLS[network]}/v1/contracts/${contract}/bigmaps/ledger/keys?limit=10000`)
+      .then(pipe(prop('data'), map(pick(['key', 'value']))))
+      .catch(console.log)
 
-export const _queryAccessControl =
-  (contractStorage: (network: Network) => (x: string) => Promise<ContractLedgerItem[]>) =>
-  async ({ contractAddress, network = Network.ithacanet, parameters: { pkh }, test: { comparator, value } }: AccessControlQuery) => {
-    try {
-      const storage = await contractStorage(network)(contractAddress)
-      const ownedAssets = filterOwnedAssets(pkh as string)(storage)
-      
-      const compareList = {
-        [Comparator.equals]: equals(prop('length')(ownedAssets))(value),
-        [Comparator.greater]: gte(prop('length')(ownedAssets) as number)(value),
-      }
+export const getLedgerFromStorage = _getLedgerFromStorage(http)
 
-      const ownedAssetIds = getOwnedAssetIds(ownedAssets)
+export const _getBalance =
+  (http: AxiosInstance) =>
+  ({ network, contract }: { network: Network; contract: string }) =>
+    http.get(`https://${API_URLS[network]}/v1/accounts/${contract}/balance`).then(prop('data')).catch(console.log)
 
-      return {
-        contractAddress,
-        network,
-        pkh,
-        tokens: ownedAssetIds,
-        passedTest: compareList[comparator],
-      }
-    } catch {
-      return {
-        contractAddress,
-        pkh,
-        network,
-        tokens: [],
-        passedTest: false,
-      }
+export const getBalance = _getBalance(http)
+
+export const _queryAccessControl = (deps: AccessControlQueryDependencies) => async (query: AccessControlQuery) => {
+  const {
+    network = Network.ithacanet,
+    parameters: { pkh },
+    test: { type },
+  } = query
+  const { getLedgerFromStorage, getBalance } = deps
+  try {
+    const testResults = await match(type)
+      .with(ConditionType.nft, () => validateNFTCondition(getLedgerFromStorage)(query))
+      .with(ConditionType.xtzBalance, () => validateXTZBalanceCondition(getBalance)(query))
+      .otherwise(always(Promise.resolve({ passed: false })))
+
+    return {
+      network,
+      pkh,
+      testResults,
     }
+  } catch(error) {
+    return error
   }
+}
 
-export const queryAccessControl = _queryAccessControl(getContractStorage)
+export const queryAccessControl = _queryAccessControl({ getLedgerFromStorage, getBalance })

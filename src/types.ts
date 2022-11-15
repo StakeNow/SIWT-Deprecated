@@ -1,6 +1,6 @@
 export enum Network {
   mainnet = 'mainnet',
-  ithacanet = 'ithacanet'
+  ithacanet = 'ithacanet',
 }
 
 export interface MessagePayloadData {
@@ -27,9 +27,17 @@ export interface TokenPayload {
   userInfo?: Record<string, any>
 }
 
+export enum ConditionType {
+  nft = 'nft',
+  xtzBalance = 'xtzBalance',
+}
+
 export enum Comparator {
-  equals = '=',
-  greater = '>=',
+  eq = '=',
+  gte = '>=',
+  lte = '<=',
+  gt = '>',
+  lt = '<',
 }
 
 export enum AssetContractType {
@@ -39,30 +47,41 @@ export enum AssetContractType {
   unknown = 'Unknown',
 }
 
+export interface AccessControlQueryDependencies {
+  getLedgerFromStorage: ({ network, contract }: { network: Network; contract: string }) => Promise<Pick<unknown, never>[] | void>
+  getBalance: ({ network, contract }: { network: Network; contract: string }) => Promise<number>
+}
+
 export interface AccessControlQuery {
-  contractAddress: string
-  network?: Network 
+  network?: Network
   parameters: {
     pkh?: string
   }
   test: {
+    contractAddress: string
+    type: ConditionType
     comparator: Comparator
     value: number
   }
 }
 
-interface MultiAssetKey {
-  nat: number
-  address: string
+export interface TestResult {
+  passed: boolean
+  ownedTokenIds?: any[]
+  balance?: number
 }
 
-export type ContractLedgerItem = {
-  id?: number
-  active?: boolean
-  hash?: string
-  value: string | number
-  key: string | number | MultiAssetKey
-  firstLevel?: number
-  lastLevel?: number
-  updates?: number
+export interface LedgerAsset {
+  key: string
+  value: string
 }
+
+export interface LedgerNFTAsset {
+  key: {
+    nat: string,
+    address: String,
+  },
+  value: string,
+}
+
+export type LedgerStorage = LedgerAsset | LedgerNFTAsset
