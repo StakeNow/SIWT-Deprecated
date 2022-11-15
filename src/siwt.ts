@@ -1,8 +1,14 @@
+/*
+ * Copyright (C) 2022, vDL Digital Ventures GmbH <info@vdl.digital>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
 import { verifySignature as taquitoVerifySignature } from '@taquito/utils'
 import jwt from 'jsonwebtoken'
 import type { sign as Sign, verify as Verify } from 'jsonwebtoken'
 import axios, { AxiosInstance } from 'axios'
-import { add, assoc, equals, objOf, pipe, prop, gte } from 'ramda'
+import { assoc, equals, objOf, pipe, prop, gte } from 'ramda'
 
 import {
   AccessControlQuery,
@@ -98,7 +104,7 @@ export const getContractStorage = (network: Network) => (contractAddress: string
 
 export const _queryAccessControl =
   (contractStorage: (network: Network) => (x: string) => Promise<ContractLedgerItem[]>) =>
-  async ({ contractAddress, network = Network.ithacanet, parameters: { pkh }, test: { comparator, value } }: AccessControlQuery) => {
+  async ({ contractAddress, network = Network.ghostnet, parameters: { pkh }, test: { comparator, value } }: AccessControlQuery) => {
     try {
       const storage = await contractStorage(network)(contractAddress)
       const ownedAssets = filterOwnedAssets(pkh as string)(storage)
