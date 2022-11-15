@@ -103,7 +103,7 @@ export const _queryAccessControl =
   (contractStorage: (network: Network) => (x: string) => Promise<ContractLedgerItem[]>) =>
   async ({
     contractAddress,
-    network = Network.ithacanet,
+    network = Network.ghostnet,
     parameters: { pkh },
     test: { comparator, value },
   }: AccessControlQuery) => {
