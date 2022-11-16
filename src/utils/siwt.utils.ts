@@ -109,7 +109,7 @@ export const getOwnedAssetIds = cond([
 export const validateNFTCondition =
   (getLedgerFromStorage: AccessControlQueryDependencies['getLedgerFromStorage']) =>
   ({
-    network = Network.ithacanet,
+    network = Network.ghostnet,
     parameters: { pkh },
     test: { contractAddress, comparator, value },
   }: AccessControlQuery) =>
@@ -137,7 +137,7 @@ export const validateNFTCondition =
 
 export const validateXTZBalanceCondition =
   (getBalance: AccessControlQueryDependencies['getBalance']) =>
-  ({ network = Network.ithacanet, test: { contractAddress, comparator, value } }: AccessControlQuery) =>
+  ({ network = Network.ghostnet, test: { contractAddress, comparator, value } }: AccessControlQuery) =>
     getBalance({ network, contract: contractAddress })
       .then((balance: number) => {
         const compareList = {
