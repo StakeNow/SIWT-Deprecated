@@ -6,7 +6,7 @@
 
 export enum Network {
   mainnet = 'mainnet',
-  ghostnet = 'ghostnet'
+  ghostnet = 'ghostnet',
 }
 
 export interface MessagePayloadData {
@@ -36,6 +36,7 @@ export interface TokenPayload {
 export enum ConditionType {
   nft = 'nft',
   xtzBalance = 'xtzBalance',
+  tokenBalance = 'tokenBalance',
 }
 
 export enum Comparator {
@@ -54,8 +55,25 @@ export enum AssetContractType {
 }
 
 export interface AccessControlQueryDependencies {
-  getLedgerFromStorage: ({ network, contract }: { network: Network; contract: string }) => Promise<Pick<unknown, never>[] | void>
+  getLedgerFromStorage: ({
+    network,
+    contract,
+  }: {
+    network: Network
+    contract: string
+  }) => Promise<Pick<unknown, never>[] | void>
   getBalance: ({ network, contract }: { network: Network; contract: string }) => Promise<number>
+  getTokenBalance: ({
+    network,
+    contract,
+    pkh,
+    tokenId,
+  }: {
+    network: Network
+    contract: string
+    pkh: string
+    tokenId: string
+  }) => Promise<number>
 }
 
 export interface AccessControlQuery {
@@ -65,6 +83,7 @@ export interface AccessControlQuery {
   }
   test: {
     contractAddress: string
+    tokenId?: string
     type: ConditionType
     comparator: Comparator
     value: number
@@ -84,10 +103,10 @@ export interface LedgerAsset {
 
 export interface LedgerNFTAsset {
   key: {
-    nat: string,
-    address: String,
-  },
-  value: string,
+    nat: string
+    address: String
+  }
+  value: string
 }
 
 export type LedgerStorage = LedgerAsset | LedgerNFTAsset

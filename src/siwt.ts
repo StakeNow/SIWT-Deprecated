@@ -7,8 +7,9 @@
 import { verifySignature as taquitoVerifySignature } from '@taquito/utils'
 import jwt from 'jsonwebtoken'
 import type { sign as Sign, verify as Verify } from 'jsonwebtoken'
-import axios, { AxiosInstance } from 'axios'
-import { assoc, objOf, pipe, prop, always, pick, map } from 'ramda'
+import { AxiosInstance } from 'axios'
+import { assoc, objOf, pipe, prop, always } from 'ramda'
+import { match } from 'ts-pattern'
 
 import {
   AccessControlQuery,
@@ -18,13 +19,13 @@ import {
   Network,
   ConditionType,
   AccessControlQueryDependencies,
-  TestResult,
-  LedgerStorage,
 } from './types'
 import { constructSignPayload, generateMessageData, packMessagePayload } from './utils'
-import { ACCESS_TOKEN_EXPIRATION, API_URLS, ID_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } from './constants'
-import { validateNFTCondition, validateXTZBalanceCondition } from './utils/siwt.utils'
-import { match } from 'ts-pattern'
+import { ACCESS_TOKEN_EXPIRATION, ID_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } from './constants'
+import { validateNFTCondition, validateTokenBalanceCondition, validateXTZBalanceCondition } from './utils/siwt.utils'
+import { getBalance, getLedgerFromStorage } from './data'
+import { http } from './http'
+import { getTokenBalance } from './data/data'
 
 export const createMessagePayload = (signatureRequestData: SignInMessageData) =>
   pipe(
@@ -42,10 +43,6 @@ export const _signIn = (http: AxiosInstance) => (baseUrl: string) => (payload: S
     url: '/signin',
     data: payload,
   })
-
-const http = axios.create({
-  timeout: 1000,
-})
 
 export const signIn = _signIn(http)
 
@@ -96,23 +93,6 @@ export const _verifyRefreshToken = (verify: typeof Verify) => (refreshToken: str
   verify(refreshToken, process.env.REFRESH_TOKEN_SECRET as string)
 export const verifyRefreshToken = _verifyRefreshToken(jwt?.verify)
 
-export const _getLedgerFromStorage =
-  (http: AxiosInstance) =>
-  ({ network, contract }: { network: Network; contract: string }) =>
-    http
-      .get(`https://${API_URLS[network]}/v1/contracts/${contract}/bigmaps/ledger/keys?limit=10000`)
-      .then(pipe(prop('data'), map(pick(['key', 'value']))))
-      .catch(console.log)
-
-export const getLedgerFromStorage = _getLedgerFromStorage(http)
-
-export const _getBalance =
-  (http: AxiosInstance) =>
-  ({ network, contract }: { network: Network; contract: string }) =>
-    http.get(`https://${API_URLS[network]}/v1/accounts/${contract}/balance`).then(prop('data')).catch(console.log)
-
-export const getBalance = _getBalance(http)
-
 export const _queryAccessControl = (deps: AccessControlQueryDependencies) => async (query: AccessControlQuery) => {
   const {
     network = Network.ghostnet,
@@ -124,6 +104,7 @@ export const _queryAccessControl = (deps: AccessControlQueryDependencies) => asy
     const testResults = await match(type)
       .with(ConditionType.nft, () => validateNFTCondition(getLedgerFromStorage)(query))
       .with(ConditionType.xtzBalance, () => validateXTZBalanceCondition(getBalance)(query))
+      .with(ConditionType.tokenBalance, () => validateTokenBalanceCondition(getTokenBalance)(query))
       .otherwise(always(Promise.resolve({ passed: false })))
 
     return {
@@ -131,9 +112,9 @@ export const _queryAccessControl = (deps: AccessControlQueryDependencies) => asy
       pkh,
       testResults,
     }
-  } catch(error) {
+  } catch (error) {
     return error
   }
 }
 
-export const queryAccessControl = _queryAccessControl({ getLedgerFromStorage, getBalance })
+export const queryAccessControl = _queryAccessControl({ getLedgerFromStorage, getBalance, getTokenBalance })

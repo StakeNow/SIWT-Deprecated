@@ -10,12 +10,8 @@ import {
   cond,
   equals,
   filter,
-  gt,
-  gte,
   head,
   join,
-  lt,
-  lte,
   map,
   path,
   pathEq,
@@ -25,16 +21,14 @@ import {
   propEq,
   propOr,
   T,
-  tap,
   uniq,
 } from 'ramda'
 
-import { TEZOS_SIGNED_MESSAGE_PREFIX } from '../constants'
+import { COMPARISONS, TEZOS_SIGNED_MESSAGE_PREFIX } from '../constants'
 import {
   AccessControlQuery,
   AccessControlQueryDependencies,
   AssetContractType,
-  Comparator,
   LedgerStorage,
   MessagePayloadData,
   Network,
@@ -116,43 +110,44 @@ export const validateNFTCondition =
     getLedgerFromStorage({ network, contract: contractAddress })
       .then(storage => {
         const ownedAssets = filterOwnedAssets(pkh as string)(storage as LedgerStorage[])
-        const comparisons = {
-          [Comparator.eq]: () => equals,
-          [Comparator.gte]: () => gte,
-          [Comparator.lte]: () => lte,
-          [Comparator.gt]: () => gt,
-          [Comparator.lt]: () => lt,
-        }
-
         const ownedAssetIds = getOwnedAssetIds(ownedAssets)
 
         return {
-          passed: comparisons[comparator]()(prop('length')(ownedAssets), value),
+          passed: (COMPARISONS[comparator] as any)(prop('length')(ownedAssets))(value),
           ownedTokenIds: ownedAssetIds,
         }
       })
-      .catch(() => {
-        throw new Error('Checking NFT condition failed')
-      })
+      .catch(() => ({
+        passed: false,
+        error: true,
+      }))
 
 export const validateXTZBalanceCondition =
   (getBalance: AccessControlQueryDependencies['getBalance']) =>
   ({ network = Network.ghostnet, test: { contractAddress, comparator, value } }: AccessControlQuery) =>
     getBalance({ network, contract: contractAddress })
-      .then((balance: number) => {
-        const compareList = {
-          [Comparator.eq]: () => equals,
-          [Comparator.gte]: () => gte,
-          [Comparator.lte]: () => lte,
-          [Comparator.gt]: () => gt,
-          [Comparator.lt]: () => lt,
-        }
+      .then((balance: number) => ({
+        balance,
+        passed: (COMPARISONS[comparator] as any)(balance)(value),
+      }))
+      .catch(() => ({
+        passed: false,
+        error: true,
+      }))
 
-        return {
-          balance,
-          passed: compareList[comparator]()(balance)(value),
-        }
-      })
-      .catch(() => {
-        throw new Error('Checking XTZ Balance condition failed')
-      })
+export const validateTokenBalanceCondition =
+  (getTokenBalance: AccessControlQueryDependencies['getTokenBalance']) =>
+  ({
+    network = Network.ghostnet,
+    test: { contractAddress, comparator, value, tokenId },
+    parameters: { pkh },
+  }: AccessControlQuery) =>
+    getTokenBalance({ network, contract: contractAddress, pkh: pkh as string, tokenId: tokenId as string })
+      .then((balance: number) => ({
+        balance,
+        passed: (COMPARISONS[comparator] as any)(balance)(value),
+      }))
+      .catch(() => ({
+        passed: false,
+        error: true,
+      }))
