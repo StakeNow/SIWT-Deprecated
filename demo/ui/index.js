@@ -119,8 +119,7 @@ const login = async () => {
       dappUrl: 'siwt.stakenow.fi',
       pkh: walletPermissions.address,
       options: {
-        termsAndConditions: true,
-        privacyPolicy: true,
+        policies: ['Terms and Conditions', 'Privacy Policy', 'Financial Policy']
       },
     })
 
