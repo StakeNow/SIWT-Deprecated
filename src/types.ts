@@ -6,7 +6,7 @@
 
 export enum Network {
   mainnet = 'mainnet',
-  ghostnet = 'ghostnet'
+  ghostnet = 'ghostnet',
 }
 
 export interface MessagePayloadData {
@@ -16,8 +16,7 @@ export interface MessagePayloadData {
 }
 
 export interface SignInMessageDataOptions {
-  termsAndConditions: boolean
-  privacyPolicy: boolean
+  policies: string[]
 }
 
 export interface SignInMessageData {

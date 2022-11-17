@@ -291,4 +291,17 @@ describe('utils/siwt.utils', () => {
       },
     )
   })
+
+  describe('formatPoliciesString', () => {
+    it.each([
+      [['POLICY'], 'POLICY'],
+      [['POLICY 1', 'POLICY 2'], 'POLICY 1 and POLICY 2'],
+      [['POLICY 1', 'POLICY 2', 'POLICY 3'], 'POLICY 1, POLICY 2 and POLICY 3'],
+    ])('should format the policies array into a string', (policies, expected) => {
+      // when ... we want to format the policies array into a string
+      // then ... it should format as expected
+      const result = SUT.formatPoliciesString(policies)
+      expect(result).toEqual(expected)
+    })
+  })
 })
