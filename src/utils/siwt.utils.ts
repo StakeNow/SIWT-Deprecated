@@ -8,6 +8,7 @@ import { char2Bytes, validateAddress } from '@taquito/utils'
 import {
   always,
   cond,
+  divide,
   equals,
   filter,
   head,
@@ -62,7 +63,7 @@ export const packMessagePayload = (messageData: MessagePayloadData): string =>
     join(''),
   )(messageData)
 
-export const filterOwnedAssetsFromNFTAssetContract = (pkh: string) => pipe(filter(propEq('value', pkh)))
+export const filterOwnedAssetsFromNFTAssetContract = (pkh: string) => filter(propEq('value', pkh))
 export const filterOwnedAssetsFromSingleAssetContract = (pkh: string) => filter(propEq('key', pkh))
 export const filterOwnedAssetsFromMultiAssetContract = (pkh: string) => filter(pathEq(['key', 'address'], pkh))
 
@@ -151,3 +152,5 @@ export const validateTokenBalanceCondition =
         passed: false,
         error: true,
       }))
+
+export const denominate = ([x, y]: number[]) => divide(y, 10 ** x)

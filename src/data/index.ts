@@ -1,1 +1,1 @@
-export { getBalance, getLedgerFromStorage } from './data'
+export { getBalance, getLedgerFromStorage, getTokenBalance } from './data'

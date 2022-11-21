@@ -23,9 +23,8 @@ import {
 import { constructSignPayload, generateMessageData, packMessagePayload } from './utils'
 import { ACCESS_TOKEN_EXPIRATION, ID_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } from './constants'
 import { validateNFTCondition, validateTokenBalanceCondition, validateXTZBalanceCondition } from './utils/siwt.utils'
-import { getBalance, getLedgerFromStorage } from './data'
+import { getBalance, getLedgerFromStorage, getTokenBalance } from './data'
 import { http } from './http'
-import { getTokenBalance } from './data/data'
 
 export const createMessagePayload = (signatureRequestData: SignInMessageData) =>
   pipe(

@@ -5,7 +5,7 @@
  */
 
 import { validPkh } from '../fixtures'
-import { AccessControlQuery, AssetContractType, Comparator, LedgerStorage } from '../types'
+import { AssetContractType, Comparator, LedgerStorage } from '../types'
 import * as SUT from './siwt.utils'
 
 describe('utils/siwt.utils', () => {
@@ -774,5 +774,16 @@ describe('utils/siwt.utils', () => {
 
     // then ... it should return an errorf result as expected
     expect(result).toEqual(expected)
+  })
+
+  describe('denominate', () => {
+    it('should denominate to provided decimals as expected', () => {
+      // when ... we want to denominate
+      const amountWithDenomination = [6, 1000000]  
+      const result = SUT.denominate(amountWithDenomination)
+
+      // then ... it should denominate as expected
+      expect(result).toEqual(1)
+    })
   })
 })

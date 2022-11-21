@@ -10,6 +10,7 @@ import { divide, map, pathOr, paths, pick, pipe, prop } from 'ramda'
 import { API_URLS } from '../constants'
 import { http } from '../http'
 import { Network } from '../types'
+import { denominate } from '../utils'
 
 export const _getLedgerFromStorage =
   (http: AxiosInstance) =>
@@ -53,7 +54,7 @@ export const _getTokenBalance =
           pathOr('0', ['data', 0]),
           paths([['metadata', 'decimals'], ['balance']]) as (obj: any) => [string, string],
           map(parseInt),
-          ([x, y]: number[]) => divide(y, 10 ** x),
+          denominate,
         ),
       )
       .catch(error => error)
