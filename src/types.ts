@@ -37,6 +37,7 @@ export enum ConditionType {
   nft = 'nft',
   xtzBalance = 'xtzBalance',
   tokenBalance = 'tokenBalance',
+  whitelist = 'whitelist',
 }
 
 export enum Comparator {
@@ -45,6 +46,8 @@ export enum Comparator {
   lte = '<=',
   gt = '>',
   lt = '<',
+  in = 'IN',
+  notIn = 'NOT IN'
 }
 
 export enum AssetContractType {
@@ -55,15 +58,15 @@ export enum AssetContractType {
 }
 
 export interface AccessControlQueryDependencies {
-  getLedgerFromStorage: ({
+  getLedgerFromStorage?: ({
     network,
     contract,
   }: {
     network: Network
     contract: string
   }) => Promise<Pick<unknown, never>[] | void>
-  getBalance: ({ network, contract }: { network: Network; contract: string }) => Promise<number>
-  getTokenBalance: ({
+  getBalance?: ({ network, contract }: { network: Network; contract: string }) => Promise<number>
+  getTokenBalance?: ({
     network,
     contract,
     pkh,
@@ -74,6 +77,7 @@ export interface AccessControlQueryDependencies {
     pkh: string
     tokenId: string
   }) => Promise<number>
+  whitelist?: string[]
 }
 
 export interface AccessControlQuery {
@@ -82,11 +86,11 @@ export interface AccessControlQuery {
     pkh?: string
   }
   test: {
-    contractAddress: string
+    contractAddress?: string
     tokenId?: string
     type: ConditionType
     comparator: Comparator
-    value: number
+    value?: number
   }
 }
 

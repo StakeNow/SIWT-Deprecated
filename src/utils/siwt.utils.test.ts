@@ -4,8 +4,15 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { validPkh } from '../fixtures'
-import { AssetContractType, Comparator, LedgerStorage } from '../types'
+import { invalidPkh, validPkh } from '../fixtures'
+import {
+  AccessControlQuery,
+  AccessControlQueryDependencies,
+  AssetContractType,
+  Comparator,
+  ConditionType,
+  LedgerStorage,
+} from '../types'
 import * as SUT from './siwt.utils'
 
 describe('utils/siwt.utils', () => {
@@ -718,7 +725,6 @@ describe('utils/siwt.utils', () => {
     ])('should validate if the token Balance condition is met', async (query, balance, expected) => {
       // when ... we want to validate a users token balance
       // then ... it should validate as expected
-
       const getTokenBalanceStub = jest.fn().mockResolvedValue(balance)
       const result = await SUT.validateTokenBalanceCondition(getTokenBalanceStub)(query as any)
 
@@ -738,19 +744,19 @@ describe('utils/siwt.utils', () => {
           value: 10,
         },
       }
-      const tokenBalance = 1 
+      const tokenBalance = 1
       const expected = {
         passed: false,
         balance: 1,
       }
-  
+
       const getTokenBalanceStub = jest.fn().mockResolvedValue(tokenBalance)
       const result = await SUT.validateTokenBalanceCondition(getTokenBalanceStub)(query as any)
-      
+
       // then ... it should return validation result as expected
       expect(result).toEqual(expected)
     })
-  
+
     it('should should return an error if token balance cannot be fetched', async () => {
       // when ... validating the token balance condition
       const query = {
@@ -767,10 +773,10 @@ describe('utils/siwt.utils', () => {
         passed: false,
         error: true,
       }
-  
+
       const getTokenBalanceStub = jest.fn().mockRejectedValue(new Error('Failed'))
       const result = await SUT.validateTokenBalanceCondition(getTokenBalanceStub)(query as any)
-  
+
       // then ... it should return an errorf result as expected
       expect(result).toEqual(expected)
     })
@@ -779,11 +785,74 @@ describe('utils/siwt.utils', () => {
   describe('denominate', () => {
     it('should denominate to provided decimals as expected', () => {
       // when ... we want to denominate
-      const amountWithDenomination = [6, 1000000]  
+      const amountWithDenomination = [6, 1000000]
       const result = SUT.denominate(amountWithDenomination)
 
       // then ... it should denominate as expected
       expect(result).toEqual(1)
+    })
+  })
+
+  describe('validateWhitelistCondition', () => {
+    it.each([
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            type: ConditionType.whitelist,
+            comparator: Comparator.in,
+          },
+        },
+        [validPkh],
+        true,
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            type: ConditionType.whitelist,
+            comparator: Comparator.in,
+          }
+        },
+        [invalidPkh],
+        false,
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            type: ConditionType.whitelist,
+            comparator: Comparator.in,
+          }
+        },
+        [],
+        false,
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            type: ConditionType.whitelist,
+            comparator: Comparator.notIn,
+          }
+        },
+        [validPkh],
+        false,
+      ],
+    ])('should return whitelist validation as expected', (query, whitelist, expected) => {
+      // when ... validating the whitelist condition
+      const result = SUT.validateWhitelistCondition(whitelist)(query)
+
+      // then ... it should return validation result as expected
+      expect(result).toEqual(expected)
     })
   })
 })
