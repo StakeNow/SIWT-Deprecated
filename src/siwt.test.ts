@@ -466,5 +466,97 @@ describe('./siwt', () => {
       expect(getLedgerFromStorageStub).not.toHaveBeenCalled()
       expect(getTokenBalanceStub).not.toHaveBeenCalled()
     })
+
+    it('should allow access when user has sufficient token balance', async () => {
+      // when ... we want to test if a user has sufficient token balance
+      const balance = 10
+      const query = {
+        parameters: {
+          pkh: validPkh,
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          tokenId: 0,
+          type: ConditionType.tokenBalance,
+          comparator: Comparator.gte,
+          value: 1,
+        },
+      }
+
+      const getLedgerFromStorageStub = jest.fn()
+      const getBalanceStub = jest.fn()
+      const getTokenBalanceStub = jest.fn().mockResolvedValue(balance)
+
+      const result = await SUT._queryAccessControl({
+        getLedgerFromStorage: getLedgerFromStorageStub,
+        getBalance: getBalanceStub,
+        getTokenBalance: getTokenBalanceStub,
+      })(query as any)
+
+      // then ... it should return a passed test as expected
+      const expected = {
+        network: Network.ghostnet,
+        pkh: validPkh,
+        testResults: {
+          balance,
+          passed: true,
+        },
+      }
+      expect(result).toEqual(expected)
+      expect(getLedgerFromStorageStub).not.toHaveBeenCalled()
+      expect(getBalanceStub).not.toHaveBeenCalled()
+      expect(getTokenBalanceStub).toHaveBeenCalledWith({
+        contract: 'CONTRACT',
+        network: Network.ghostnet,
+        pkh: validPkh,
+        tokenId: 0
+      })
+    })
+
+    it('should fail when token balance cannot be fetched', async () => {
+      // when ... we cannot fetch token balance
+      const balance = 0
+      const query = {
+        parameters: {
+          pkh: validPkh,
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          tokenId: 0,
+          type: ConditionType.tokenBalance,
+          comparator: Comparator.gte,
+          value: 1,
+        },
+      }
+
+      const getLedgerFromStorageStub = jest.fn()
+      const getBalanceStub = jest.fn()
+      const getTokenBalanceStub = jest.fn().mockRejectedValue(balance)
+
+      const result = await SUT._queryAccessControl({
+        getLedgerFromStorage: getLedgerFromStorageStub,
+        getBalance: getBalanceStub,
+        getTokenBalance: getTokenBalanceStub,
+      })(query as any)
+
+      // then ... it should fail as expected
+      const expected = {
+        network: Network.ghostnet,
+        pkh: validPkh,
+        testResults: {
+          passed: false,
+          error: true,
+        },
+      }
+      expect(result).toEqual(expected)
+      expect(getLedgerFromStorageStub).not.toHaveBeenCalled()
+      expect(getTokenBalanceStub).toHaveBeenCalledWith({
+        contract: 'CONTRACT',
+        network: Network.ghostnet,
+        pkh: validPkh,
+        tokenId: 0,
+      })
+      expect(getBalanceStub).not.toHaveBeenCalled()
+    })
   })
 })

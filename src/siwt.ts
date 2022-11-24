@@ -98,7 +98,7 @@ export const _queryAccessControl = (deps: AccessControlQueryDependencies) => asy
     parameters: { pkh },
     test: { type },
   } = query
-  const { getLedgerFromStorage, getBalance } = deps
+  const { getLedgerFromStorage, getBalance, getTokenBalance } = deps
   try {
     const testResults = await match(type)
       .with(ConditionType.nft, () => validateNFTCondition(getLedgerFromStorage)(query))
