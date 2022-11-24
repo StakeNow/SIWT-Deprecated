@@ -223,7 +223,7 @@ describe('utils/siwt.utils', () => {
       [
         [
           {
-            key: { nat: 0, address: '' }, 
+            key: { nat: 0, address: '' },
             value: 0,
           },
         ],
@@ -251,9 +251,7 @@ describe('utils/siwt.utils', () => {
             value: validPkh,
           },
         ],
-        [
-          1
-        ],
+        [1],
       ],
       [
         [
@@ -270,9 +268,7 @@ describe('utils/siwt.utils', () => {
             value: 2,
           },
         ],
-        [
-          2, 3
-        ],
+        [2, 3],
       ],
       [
         [
@@ -281,14 +277,9 @@ describe('utils/siwt.utils', () => {
             value: 3,
           },
         ],
-        [
-          0
-        ],
+        [0],
       ],
-      [
-        [],
-        [],
-      ],
+      [[], []],
     ])(
       'should filter out the owned asset ids as expected',
       (ownedAssets: Partial<ContractLedgerItem[]>, expected: number[]) => {
@@ -299,5 +290,18 @@ describe('utils/siwt.utils', () => {
         expect(result).toEqual(expected)
       },
     )
+  })
+
+  describe('formatPoliciesString', () => {
+    it.each([
+      [['POLICY'], 'POLICY'],
+      [['POLICY 1', 'POLICY 2'], 'POLICY 1 and POLICY 2'],
+      [['POLICY 1', 'POLICY 2', 'POLICY 3'], 'POLICY 1, POLICY 2 and POLICY 3'],
+    ])('should format the policies array into a string', (policies, expected) => {
+      // when ... we want to format the policies array into a string
+      // then ... it should format as expected
+      const result = SUT.formatPoliciesString(policies)
+      expect(result).toEqual(expected)
+    })
   })
 })

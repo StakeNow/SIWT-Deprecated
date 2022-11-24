@@ -6,7 +6,7 @@
 
 export enum Network {
   mainnet = 'mainnet',
-  ghostnet = 'ghostnet'
+  ghostnet = 'ghostnet',
 }
 
 export interface MessagePayloadData {
@@ -15,9 +15,14 @@ export interface MessagePayloadData {
   message: string
 }
 
+export interface SignInMessageDataOptions {
+  policies: string[]
+}
+
 export interface SignInMessageData {
   dappUrl: string
   pkh: string
+  options?: SignInMessageDataOptions
 }
 
 export interface SignInPayload {
@@ -47,7 +52,7 @@ export enum AssetContractType {
 
 export interface AccessControlQuery {
   contractAddress: string
-  network?: Network 
+  network?: Network
   parameters: {
     pkh?: string
   }

@@ -104,7 +104,9 @@ describe('./siwt', () => {
       }
 
       expect(result).toEqual('JWT')
-      expect(signStub).toHaveBeenCalledWith(expectedSignPayload, 'ACCESS TOKEN SECRET', { expiresIn: ACCESS_TOKEN_EXPIRATION })
+      expect(signStub).toHaveBeenCalledWith(expectedSignPayload, 'ACCESS TOKEN SECRET', {
+        expiresIn: ACCESS_TOKEN_EXPIRATION,
+      })
     })
   })
 
@@ -207,17 +209,18 @@ describe('./siwt', () => {
       expect(result).toEqual({
         contractAddress: 'CONTRACT',
         pkh: validPkh,
-        network: 'ithacanet',
+        network: 'ghostnet',
         tokens: [1],
         passedTest: true,
       })
     })
 
     it('should past test and return all tokens of the user', async () => {
-      const storageStub = () => jest.fn().mockResolvedValue([
-        { value: validPkh, key: 1 },
-        { value: validPkh, key: 2 },
-      ])
+      const storageStub = () =>
+        jest.fn().mockResolvedValue([
+          { value: validPkh, key: 1 },
+          { value: validPkh, key: 2 },
+        ])
 
       const result = await SUT._queryAccessControl(storageStub)({
         contractAddress: 'CONTRACT',
@@ -256,7 +259,7 @@ describe('./siwt', () => {
 
       expect(result).toEqual({
         contractAddress: 'CONTRACT',
-        network: 'ithacanet',
+        network: 'ghostnet',
         pkh: validPkh,
         tokens: [1],
         passedTest: true,
@@ -280,7 +283,7 @@ describe('./siwt', () => {
       expect(result).toEqual({
         contractAddress: 'CONTRACT',
         pkh: validPkh,
-        network: 'ithacanet',
+        network: 'ghostnet',
         tokens: [],
         passedTest: false,
       })

@@ -10,7 +10,9 @@ import {
   cond,
   equals,
   filter,
+  gt,
   head,
+  ifElse,
   join,
   map,
   path,
@@ -20,6 +22,7 @@ import {
   prop,
   propEq,
   propOr,
+  replace,
   T,
   uniq,
 } from 'ramda'
@@ -27,11 +30,20 @@ import {
 import { TEZOS_SIGNED_MESSAGE_PREFIX } from '../constants'
 import { AssetContractType, MessagePayloadData, SignInMessageData } from '../types'
 
-export const generateMessageData = ({ dappUrl, pkh }: SignInMessageData) => ({
+export const formatPoliciesString = ifElse(
+  propEq('length', 1),
+  join(''),
+  pipe(join(', '), replace(/,([^,]*)$/, ' and$1')),
+)
+
+export const generateMessageData = ({ dappUrl, pkh, options = { policies: [] } }: SignInMessageData) => ({
   dappUrl,
   timestamp: new Date().toISOString(),
-  message: `${dappUrl} would like you to sign in with ${pkh}. 
-  `,
+  message: `${dappUrl} would like you to sign in with ${pkh}. ${
+    gt(pathOr(0, ['policies', 'length'])(options), 0)
+      ? `By signing this message you accept our ${formatPoliciesString(prop('policies')(options))}`
+      : ''
+  }`,
 })
 
 export const constructSignPayload = ({ payload, pkh }: { payload: string; pkh: string }) => ({
@@ -70,9 +82,18 @@ export const determineContractAssetType = pipe(
 
 export const filterOwnedAssets = (pkh: string) =>
   cond([
-    [pipe(determineContractAssetType, equals(AssetContractType.nft)), filterOwnedAssetsFromNFTAssetContract(pkh) as any],
-    [pipe(determineContractAssetType, equals(AssetContractType.multi)), filterOwnedAssetsFromMultiAssetContract(pkh) as any],
-    [pipe(determineContractAssetType, equals(AssetContractType.single)), filterOwnedAssetsFromSingleAssetContract(pkh) as any],
+    [
+      pipe(determineContractAssetType, equals(AssetContractType.nft)),
+      filterOwnedAssetsFromNFTAssetContract(pkh) as any,
+    ],
+    [
+      pipe(determineContractAssetType, equals(AssetContractType.multi)),
+      filterOwnedAssetsFromMultiAssetContract(pkh) as any,
+    ],
+    [
+      pipe(determineContractAssetType, equals(AssetContractType.single)),
+      filterOwnedAssetsFromSingleAssetContract(pkh) as any,
+    ],
     [T, always([])],
   ])
 
