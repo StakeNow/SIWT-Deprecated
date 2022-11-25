@@ -47,7 +47,7 @@ export enum Comparator {
   gt = '>',
   lt = '<',
   in = 'IN',
-  notIn = 'NOT IN'
+  notIn = 'NOT IN',
 }
 
 export enum AssetContractType {

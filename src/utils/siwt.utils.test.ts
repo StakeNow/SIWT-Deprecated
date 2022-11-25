@@ -806,7 +806,7 @@ describe('utils/siwt.utils', () => {
           },
         },
         [validPkh],
-        true,
+        { passed: true },
       ],
       [
         {
@@ -816,10 +816,10 @@ describe('utils/siwt.utils', () => {
           test: {
             type: ConditionType.whitelist,
             comparator: Comparator.in,
-          }
+          },
         },
         [invalidPkh],
-        false,
+        { passed: false },
       ],
       [
         {
@@ -829,10 +829,10 @@ describe('utils/siwt.utils', () => {
           test: {
             type: ConditionType.whitelist,
             comparator: Comparator.in,
-          }
+          },
         },
         [],
-        false,
+        { passed: false },
       ],
       [
         {
@@ -842,10 +842,10 @@ describe('utils/siwt.utils', () => {
           test: {
             type: ConditionType.whitelist,
             comparator: Comparator.notIn,
-          }
+          },
         },
         [validPkh],
-        false,
+        { passed: false },
       ],
     ])('should return whitelist validation as expected', (query, whitelist, expected) => {
       // when ... validating the whitelist condition

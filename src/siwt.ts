@@ -122,4 +122,9 @@ export const _queryAccessControl = (deps: AccessControlQueryDependencies) => asy
   }
 }
 
-export const queryAccessControl = _queryAccessControl({ getLedgerFromStorage, getBalance, getTokenBalance })
+export const queryAccessControl = _queryAccessControl({
+  getLedgerFromStorage,
+  getBalance,
+  getTokenBalance,
+  whitelist: [],
+})

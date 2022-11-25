@@ -28,5 +28,5 @@ export const COMPARISONS = {
   [Comparator.gt]: gt,
   [Comparator.lt]: lt,
   [Comparator.in]: includes,
-  [Comparator.notIn]: complement(includes)
+  [Comparator.notIn]: complement(includes),
 }

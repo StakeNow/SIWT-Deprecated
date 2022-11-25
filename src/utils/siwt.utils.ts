@@ -12,7 +12,6 @@ import {
   equals,
   filter,
   head,
-  includes,
   join,
   map,
   path,
@@ -161,5 +160,6 @@ export const validateTokenBalanceCondition =
 
 export const validateWhitelistCondition =
   (whitelist: AccessControlQueryDependencies['whitelist']) =>
-  ({ parameters: { pkh }, test: { comparator } }: AccessControlQuery) =>
-    (COMPARISONS[comparator] as any)(pkh)(whitelist || [])
+  ({ parameters: { pkh }, test: { comparator } }: AccessControlQuery) => ({
+    passed: (COMPARISONS[comparator] as any)(pkh)(whitelist || []),
+  })
