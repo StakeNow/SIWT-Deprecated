@@ -15,9 +15,14 @@ export interface MessagePayloadData {
   message: string
 }
 
+export interface SignInMessageDataOptions {
+  policies: string[]
+}
+
 export interface SignInMessageData {
   dappUrl: string
   pkh: string
+  options?: SignInMessageDataOptions
 }
 
 export interface SignInPayload {
