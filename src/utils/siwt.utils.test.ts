@@ -5,7 +5,7 @@
  */
 
 import { validPkh } from '../fixtures'
-import { AssetContractType, ContractLedgerItem } from '../types'
+import { AssetContractType, Comparator, LedgerStorage } from '../types'
 import * as SUT from './siwt.utils'
 
 describe('utils/siwt.utils', () => {
@@ -136,7 +136,7 @@ describe('utils/siwt.utils', () => {
         [
           {
             key: {
-              nat: 0,
+              nat: '0',
               address: validPkh,
             },
             value: '',
@@ -153,15 +153,12 @@ describe('utils/siwt.utils', () => {
         ],
         AssetContractType.unknown,
       ],
-    ])(
-      'should determine the contract type as expected',
-      (ledger: Partial<ContractLedgerItem[]>, expected: AssetContractType) => {
-        // when ... we want to determine what type of contract from the form of the ledger
-        // then ... it should determine as expected
-        const result = SUT.determineContractAssetType(ledger)
-        expect(result).toEqual(expected)
-      },
-    )
+    ])('should determine the contract type as expected', (ledger: LedgerStorage[], expected: AssetContractType) => {
+      // when ... we want to determine what type of contract from the form of the ledger
+      // then ... it should determine as expected
+      const result = SUT.determineContractAssetType(ledger)
+      expect(result).toEqual(expected)
+    })
   })
 
   describe('filterOwnedAssets', () => {
@@ -169,17 +166,17 @@ describe('utils/siwt.utils', () => {
       [
         [
           {
-            key: 0,
+            key: '0',
             value: validPkh,
           },
           {
-            key: 0,
+            key: '0',
             value: '',
           },
         ],
         [
           {
-            key: 0,
+            key: '0',
             value: validPkh,
           },
         ],
@@ -188,50 +185,50 @@ describe('utils/siwt.utils', () => {
         [
           {
             key: validPkh,
-            value: 0,
+            value: '0',
           },
           {
             key: '',
-            value: 0,
+            value: '0',
           },
         ],
         [
           {
             key: validPkh,
-            value: 0,
+            value: '0',
           },
         ],
       ],
       [
         [
           {
-            key: { nat: 0, address: validPkh },
-            value: 0,
+            key: { nat: '0', address: validPkh },
+            value: '0',
           },
           {
-            key: { nat: 0, address: '' },
-            value: 0,
+            key: { nat: '0', address: '' },
+            value: '0',
           },
         ],
         [
           {
-            key: { nat: 0, address: validPkh },
-            value: 0,
+            key: { nat: '0', address: validPkh },
+            value: '0',
           },
         ],
       ],
       [
         [
           {
-            key: { nat: 0, address: '' },
-            value: 0,
+            key: { nat: '0', address: '' },
+            value: '0',
           },
         ],
         [],
       ],
     ])(
       'should filter out the owned assets as expected',
-      (ledger: Partial<ContractLedgerItem[]>, expected: Partial<ContractLedgerItem[]> | {}[]) => {
+      (ledger: LedgerStorage[], expected: LedgerStorage[] | {}[]) => {
         // when ... we want to filter the users assets from contract storage
         // then ... it should return a users assets as expected
         const pkh = validPkh
@@ -247,49 +244,547 @@ describe('utils/siwt.utils', () => {
       [
         [
           {
-            key: 1,
+            key: '1',
             value: validPkh,
           },
         ],
-        [1],
+        ['1'],
       ],
       [
         [
           {
             key: validPkh,
-            value: 2,
+            value: '2',
           },
           {
             key: validPkh,
-            value: 3,
+            value: '3',
           },
           {
             key: validPkh,
-            value: 2,
+            value: '2',
           },
         ],
-        [2, 3],
+        ['2', '3'],
       ],
       [
         [
           {
-            key: { nat: 0, address: validPkh },
-            value: 3,
+            key: { nat: '0', address: validPkh },
+            value: '3',
           },
         ],
-        [0],
+        ['0'],
       ],
       [[], []],
-    ])(
-      'should filter out the owned asset ids as expected',
-      (ownedAssets: Partial<ContractLedgerItem[]>, expected: number[]) => {
-        // when ... we want to filter the owned asset ids from owned assets
-        // then ... it should return a users asset ids as expected
-        const result = SUT.getOwnedAssetIds(ownedAssets)
+    ])('should filter out the owned asset ids as expected', (ownedAssets: LedgerStorage[], expected: string[]) => {
+      // when ... we want to filter the owned asset ids from owned assets
+      // then ... it should return a users asset ids as expected
+      const result = SUT.getOwnedAssetIds(ownedAssets)
 
-        expect(result).toEqual(expected)
-      },
-    )
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('validateNFTCondition', () => {
+    it.each([
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            contractAddress: 'CONTRACT',
+            comparator: Comparator.eq,
+            value: 1,
+          },
+        },
+        [
+          {
+            key: {
+              nat: '0',
+              address: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+            },
+            value: '1',
+          },
+        ],
+        {
+          passed: true,
+          ownedTokenIds: ['0'],
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            contractAddress: 'CONTRACT',
+            comparator: Comparator.gte,
+            value: 1,
+          },
+        },
+        [
+          {
+            key: {
+              nat: '0',
+              address: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+            },
+            value: '1',
+          },
+        ],
+        {
+          passed: true,
+          ownedTokenIds: ['0'],
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            contractAddress: 'CONTRACT',
+            comparator: Comparator.lte,
+            value: 1,
+          },
+        },
+        [
+          {
+            key: {
+              nat: '0',
+              address: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+            },
+            value: '1',
+          },
+        ],
+        {
+          passed: true,
+          ownedTokenIds: ['0'],
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            contractAddress: 'CONTRACT',
+            comparator: Comparator.gt,
+            value: 1,
+          },
+        },
+        [
+          {
+            key: {
+              nat: '0',
+              address: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+            },
+            value: '1',
+          },
+          {
+            key: {
+              nat: '1',
+              address: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+            },
+            value: '1',
+          },
+        ],
+        {
+          passed: true,
+          ownedTokenIds: ['0', '1'],
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            contractAddress: 'CONTRACT',
+            comparator: Comparator.lt,
+            value: 2,
+          },
+        },
+        [
+          {
+            key: {
+              nat: '0',
+              address: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+            },
+            value: '1',
+          },
+        ],
+        {
+          passed: true,
+          ownedTokenIds: ['0'],
+        },
+      ],
+    ])('should validate if the NFT condition is met', async (query, storage, expected) => {
+      // when ... validating the NFT condition
+      const getLedgerFromStorageStub = jest.fn().mockResolvedValue(storage)
+      const result = await SUT.validateNFTCondition(getLedgerFromStorageStub)(query as any)
+
+      // then ... it should return validation result as expected
+      expect(result).toEqual(expected)
+    })
+
+    it('should fail to validate if the NFT condition is not met', async () => {
+      // when ... validating the NFT condition
+      const query = {
+        parameters: {
+          pkh: validPkh,
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          comparator: Comparator.lt,
+          value: 1,
+        },
+      }
+      const storage = [
+        {
+          key: {
+            nat: '0',
+            address: 'tz1L9r8mWmRPndRhuvMCWESLGSVeFzQ9NAWx',
+          },
+          value: '1',
+        },
+      ]
+      const expected = {
+        passed: false,
+        ownedTokenIds: ['0'],
+      }
+
+      const getLedgerFromStorageStub = jest.fn().mockResolvedValue(storage)
+      const result = await SUT.validateNFTCondition(getLedgerFromStorageStub)(query as any)
+
+      // then ... it should return validation result as expected
+      expect(result).toEqual(expected)
+    })
+
+    it('should should return an error if storage cannot be fetched', async () => {
+      // when ... validating the NFT condition
+      const query = {
+        parameters: {
+          pkh: validPkh,
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          comparator: Comparator.lt,
+          value: 1,
+        },
+      }
+      const expected = {
+        error: true,
+        passed: false,
+      }
+
+      const getLedgerFromStorageStub = jest.fn().mockRejectedValue(new Error('Failed'))
+      const result = await SUT.validateNFTCondition(getLedgerFromStorageStub)(query as any)
+
+      // then ... it should return validation result as expected
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('validateXTZBalanceCondition', () => {
+    it.each([
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            comparator: Comparator.eq,
+            value: 1,
+          },
+        },
+        1,
+        {
+          passed: true,
+          balance: 1,
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            comparator: Comparator.gte,
+            value: 1,
+          },
+        },
+        1,
+        {
+          passed: true,
+          balance: 1,
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            comparator: Comparator.lte,
+            value: 1,
+          },
+        },
+        1,
+        {
+          passed: true,
+          balance: 1,
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            comparator: Comparator.gt,
+            value: 1,
+          },
+        },
+        2,
+        {
+          passed: true,
+          balance: 2,
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            comparator: Comparator.lt,
+            value: 2,
+          },
+        },
+        1,
+        {
+          passed: true,
+          balance: 1,
+        },
+      ],
+    ])('should validate if the XTZ balance condition is met', async (query, balance, expected) => {
+      // when ... validating the XTZ Balance condition
+      const getBalanceStub = jest.fn().mockResolvedValue(balance)
+      const result = await SUT.validateXTZBalanceCondition(getBalanceStub)(query as any)
+
+      // then ... it should return validation result as expected
+      expect(result).toEqual(expected)
+    })
+
+    it('should fail to validate if the XTZ Balance condition is not met', async () => {
+      // when ... validating the XTZ Balance condition
+      const query = {
+        parameters: {
+          pkh: validPkh,
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          comparator: Comparator.gte,
+          value: 1,
+        },
+      }
+      const balance = 0
+      const expected = {
+        passed: false,
+        balance: 0,
+      }
+
+      const getBalanceStub = jest.fn().mockResolvedValue(balance)
+      const result = await SUT.validateXTZBalanceCondition(getBalanceStub)(query as any)
+
+      // then ... it should return validation result as expected
+      expect(result).toEqual(expected)
+    })
+
+    it('should should return an error if storage cannot be fetched', async () => {
+      // when ... validating the XTZ Balance condition
+      const query = {
+        parameters: {
+          pkh: validPkh,
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          comparator: Comparator.lt,
+          value: 1,
+        },
+      }
+      const expected = {
+        error: true,
+        passed: false,
+      }
+
+      const getBalanceStub = jest.fn().mockRejectedValue(new Error('Failed'))
+      const result = await SUT.validateXTZBalanceCondition(getBalanceStub)(query as any)
+
+      // then ... it should return validation result as expected
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('validateTokenBalanceCondition', () => {
+    it.each([
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            contractAddress: 'CONTRACT',
+            comparator: Comparator.eq,
+            value: 1,
+          },
+        },
+        1,
+        {
+          passed: true,
+          balance: 1,
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            contractAddress: 'CONTRACT',
+            comparator: Comparator.gte,
+            value: 1,
+          },
+        },
+        1,
+        {
+          passed: true,
+          balance: 1,
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            contractAddress: 'CONTRACT',
+            comparator: Comparator.lte,
+            value: 1,
+          },
+        },
+        1,
+        {
+          passed: true,
+          balance: 1,
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            contractAddress: 'CONTRACT',
+            comparator: Comparator.gt,
+            value: 1,
+          },
+        },
+        2,
+        {
+          passed: true,
+          balance: 2,
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            contractAddress: 'CONTRACT',
+            comparator: Comparator.lt,
+            value: 2,
+          },
+        },
+        1,
+        {
+          passed: true,
+          balance: 1,
+        },
+      ],
+    ])('should validate if the token Balance condition is met', async (query, balance, expected) => {
+      // when ... we want to validate a users token balance
+      // then ... it should validate as expected
+
+      const getTokenBalanceStub = jest.fn().mockResolvedValue(balance)
+      const result = await SUT.validateTokenBalanceCondition(getTokenBalanceStub)(query as any)
+
+      // then ... it should return validation result as expected
+      expect(result).toEqual(expected)
+    })
+
+    it('should return a false pass if the token balance condition is not met', async () => {
+      // when ... validating the token balance condition
+      const query = {
+        parameters: {
+          pkh: validPkh,
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          comparator: Comparator.gt,
+          value: 10,
+        },
+      }
+      const tokenBalance = 1 
+      const expected = {
+        passed: false,
+        balance: 1,
+      }
+  
+      const getTokenBalanceStub = jest.fn().mockResolvedValue(tokenBalance)
+      const result = await SUT.validateTokenBalanceCondition(getTokenBalanceStub)(query as any)
+      
+      // then ... it should return validation result as expected
+      expect(result).toEqual(expected)
+    })
+  
+    it('should should return an error if token balance cannot be fetched', async () => {
+      // when ... validating the token balance condition
+      const query = {
+        parameters: {
+          pkh: validPkh,
+        },
+        test: {
+          contractAddress: 'CONTRACT',
+          comparator: Comparator.lt,
+          value: 1,
+        },
+      }
+      const expected = {
+        passed: false,
+        error: true,
+      }
+  
+      const getTokenBalanceStub = jest.fn().mockRejectedValue(new Error('Failed'))
+      const result = await SUT.validateTokenBalanceCondition(getTokenBalanceStub)(query as any)
+  
+      // then ... it should return an errorf result as expected
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('denominate', () => {
+    it('should denominate to provided decimals as expected', () => {
+      // when ... we want to denominate
+      const amountWithDenomination = [6, 1000000]  
+      const result = SUT.denominate(amountWithDenomination)
+
+      // then ... it should denominate as expected
+      expect(result).toEqual(1)
+    })
   })
 
   describe('formatPoliciesString', () => {

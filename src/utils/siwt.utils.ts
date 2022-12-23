@@ -8,6 +8,7 @@ import { char2Bytes, validateAddress } from '@taquito/utils'
 import {
   always,
   cond,
+  divide,
   equals,
   filter,
   gt,
@@ -27,8 +28,16 @@ import {
   uniq,
 } from 'ramda'
 
-import { TEZOS_SIGNED_MESSAGE_PREFIX } from '../constants'
-import { AssetContractType, MessagePayloadData, SignInMessageData } from '../types'
+import { COMPARISONS, TEZOS_SIGNED_MESSAGE_PREFIX } from '../constants'
+import {
+  AccessControlQuery,
+  AccessControlQueryDependencies,
+  AssetContractType,
+  LedgerStorage,
+  MessagePayloadData,
+  Network,
+  SignInMessageData,
+} from '../types'
 
 export const formatPoliciesString = ifElse(
   propEq('length', 1),
@@ -103,3 +112,57 @@ export const getOwnedAssetIds = cond([
   [pipe(determineContractAssetType, equals(AssetContractType.single)), pipe(map(propOr('', 'value')), uniq)],
   [T, always([])],
 ])
+
+export const validateNFTCondition =
+  (getLedgerFromStorage: AccessControlQueryDependencies['getLedgerFromStorage']) =>
+  ({
+    network = Network.ghostnet,
+    parameters: { pkh },
+    test: { contractAddress, comparator, value },
+  }: AccessControlQuery) =>
+    getLedgerFromStorage({ network, contract: contractAddress })
+      .then(storage => {
+        const ownedAssets = filterOwnedAssets(pkh as string)(storage as LedgerStorage[])
+        const ownedAssetIds = getOwnedAssetIds(ownedAssets)
+
+        return {
+          passed: (COMPARISONS[comparator] as any)(prop('length')(ownedAssets))(value),
+          ownedTokenIds: ownedAssetIds,
+        }
+      })
+      .catch(() => ({
+        passed: false,
+        error: true,
+      }))
+
+export const validateXTZBalanceCondition =
+  (getBalance: AccessControlQueryDependencies['getBalance']) =>
+  ({ network = Network.ghostnet, test: { contractAddress, comparator, value } }: AccessControlQuery) =>
+    getBalance({ network, contract: contractAddress })
+      .then((balance: number) => ({
+        balance,
+        passed: (COMPARISONS[comparator] as any)(balance)(value),
+      }))
+      .catch(() => ({
+        passed: false,
+        error: true,
+      }))
+
+export const validateTokenBalanceCondition =
+  (getTokenBalance: AccessControlQueryDependencies['getTokenBalance']) =>
+  ({
+    network = Network.ghostnet,
+    test: { contractAddress, comparator, value, tokenId },
+    parameters: { pkh },
+  }: AccessControlQuery) =>
+    getTokenBalance({ network, contract: contractAddress, pkh: pkh as string, tokenId: tokenId as string })
+      .then((balance: number) => ({
+        balance,
+        passed: (COMPARISONS[comparator] as any)(balance)(value),
+      }))
+      .catch(() => ({
+        passed: false,
+        error: true,
+      }))
+
+export const denominate = ([x, y]: number[]) => divide(y, 10 ** x)

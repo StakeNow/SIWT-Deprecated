@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { equals, gt, gte, lt, lte } from 'ramda'
+
+import { Comparator } from './types'
+
 export const API_URLS = {
   mainnet: 'api.tzkt.io',
   ghostnet: 'api.ghostnet.tzkt.io',
@@ -16,3 +20,11 @@ export const ACCESS_TOKEN_EXPIRATION = 900 // 15 mins
 export const ID_TOKEN_EXPIRATION = 36000 // 10 hrs
 
 export const REFRESH_TOKEN_EXPIRATION = 2592000 // 1 month
+
+export const COMPARISONS = {
+  [Comparator.eq]: equals,
+  [Comparator.gte]: gte,
+  [Comparator.lte]: lte,
+  [Comparator.gt]: gt,
+  [Comparator.lt]: lt,
+}
