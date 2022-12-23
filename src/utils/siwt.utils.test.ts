@@ -6,8 +6,6 @@
 
 import { invalidPkh, validPkh } from '../fixtures'
 import {
-  AccessControlQuery,
-  AccessControlQueryDependencies,
   AssetContractType,
   Comparator,
   ConditionType,

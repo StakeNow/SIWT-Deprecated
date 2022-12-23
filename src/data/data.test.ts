@@ -131,7 +131,6 @@ describe('./data', () => {
           pkh: validPkh,
           tokenId: '0',
         })
-
         expect(result).toEqual(new Error('Getting token balance failed'))
       })
     })
