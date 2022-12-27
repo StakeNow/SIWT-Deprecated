@@ -509,7 +509,7 @@ describe('./siwt', () => {
         contract: 'CONTRACT',
         network: Network.ghostnet,
         pkh: validPkh,
-        tokenId: 0
+        tokenId: 0,
       })
     })
 
@@ -557,6 +557,53 @@ describe('./siwt', () => {
         tokenId: 0,
       })
       expect(getBalanceStub).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            type: ConditionType.whitelist,
+            comparator: Comparator.in,
+          },
+        },
+        [validPkh],
+        {
+          network: Network.ghostnet,
+          pkh: validPkh,
+          testResults: {
+            passed: true,
+          },
+        },
+      ],
+      [
+        {
+          parameters: {
+            pkh: validPkh,
+          },
+          test: {
+            type: ConditionType.whitelist,
+            comparator: Comparator.in,
+          },
+        },
+        [],
+        {
+          network: Network.ghostnet,
+          pkh: validPkh,
+          testResults: {
+            passed: false,
+          },
+        },
+      ],
+    ])('should validate a pkh in the whitelist', async (query, whitelist, expected) => {
+      // when ... we want to validate if a pkh should be allowed based on whitelist validation
+      // then ... then it should return the correct result as expected
+      const result = await SUT._queryAccessControl({ whitelist })(query)
+
+      expect(result).toEqual(expected)
     })
   })
 })

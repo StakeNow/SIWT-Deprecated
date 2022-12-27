@@ -99,22 +99,28 @@ describe('./data', () => {
       it('should get a users balance for a specific token', async () => {
         // when ... we want a users balance for a specific token
         // then ... it should fetch and format as expected
-        const httpStub = { get: jest.fn().mockResolvedValue({ data: [{
-          metadata: {
-            decimals: '6'
-          },
-          balance: '1000000'
-        } ]}) }
+        const httpStub = {
+          get: jest.fn().mockResolvedValue({
+            data: [
+              {
+                metadata: {
+                  decimals: '6',
+                },
+                balance: '1000000',
+              },
+            ],
+          }),
+        }
         const result = await SUT._getTokenBalance(httpStub as any)({
           network: Network.ghostnet,
           contract: 'CONTRACT',
           pkh: validPkh,
           tokenId: '0',
         })
-  
+
         expect(result).toEqual(1)
       })
-  
+
       it('should fail to get the token balance', async () => {
         // when ... getting the token balance fails
         // then ... it should fail as expected
@@ -125,7 +131,6 @@ describe('./data', () => {
           pkh: validPkh,
           tokenId: '0',
         })
-  
         expect(result).toEqual(new Error('Getting token balance failed'))
       })
     })

@@ -113,6 +113,8 @@ export const getOwnedAssetIds = cond([
   [T, always([])],
 ])
 
+export const denominate = ([x, y]: number[]) => divide(y, 10 ** x)
+
 export const validateNFTCondition =
   (getLedgerFromStorage: AccessControlQueryDependencies['getLedgerFromStorage']) =>
   ({
@@ -120,7 +122,8 @@ export const validateNFTCondition =
     parameters: { pkh },
     test: { contractAddress, comparator, value },
   }: AccessControlQuery) =>
-    getLedgerFromStorage({ network, contract: contractAddress })
+    getLedgerFromStorage &&
+    getLedgerFromStorage({ network, contract: contractAddress as string })
       .then(storage => {
         const ownedAssets = filterOwnedAssets(pkh as string)(storage as LedgerStorage[])
         const ownedAssetIds = getOwnedAssetIds(ownedAssets)
@@ -138,7 +141,8 @@ export const validateNFTCondition =
 export const validateXTZBalanceCondition =
   (getBalance: AccessControlQueryDependencies['getBalance']) =>
   ({ network = Network.ghostnet, test: { contractAddress, comparator, value } }: AccessControlQuery) =>
-    getBalance({ network, contract: contractAddress })
+    getBalance &&
+    getBalance({ network, contract: contractAddress as string })
       .then((balance: number) => ({
         balance,
         passed: (COMPARISONS[comparator] as any)(balance)(value),
@@ -155,7 +159,8 @@ export const validateTokenBalanceCondition =
     test: { contractAddress, comparator, value, tokenId },
     parameters: { pkh },
   }: AccessControlQuery) =>
-    getTokenBalance({ network, contract: contractAddress, pkh: pkh as string, tokenId: tokenId as string })
+    getTokenBalance &&
+    getTokenBalance({ network, contract: contractAddress as string, pkh: pkh as string, tokenId: tokenId as string })
       .then((balance: number) => ({
         balance,
         passed: (COMPARISONS[comparator] as any)(balance)(value),
@@ -165,4 +170,8 @@ export const validateTokenBalanceCondition =
         error: true,
       }))
 
-export const denominate = ([x, y]: number[]) => divide(y, 10 ** x)
+export const validateWhitelistCondition =
+  (whitelist: AccessControlQueryDependencies['whitelist']) =>
+  ({ parameters: { pkh }, test: { comparator } }: AccessControlQuery) => ({
+    passed: (COMPARISONS[comparator] as any)(pkh)(whitelist || []),
+  })

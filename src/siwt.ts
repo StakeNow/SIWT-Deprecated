@@ -22,7 +22,12 @@ import {
 } from './types'
 import { constructSignPayload, generateMessageData, packMessagePayload } from './utils'
 import { ACCESS_TOKEN_EXPIRATION, ID_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } from './constants'
-import { validateNFTCondition, validateTokenBalanceCondition, validateXTZBalanceCondition } from './utils/siwt.utils'
+import {
+  validateNFTCondition,
+  validateTokenBalanceCondition,
+  validateWhitelistCondition,
+  validateXTZBalanceCondition,
+} from './utils/siwt.utils'
 import { getBalance, getLedgerFromStorage, getTokenBalance } from './data'
 import { http } from './http'
 
@@ -98,12 +103,13 @@ export const _queryAccessControl = (deps: AccessControlQueryDependencies) => asy
     parameters: { pkh },
     test: { type },
   } = query
-  const { getLedgerFromStorage, getBalance, getTokenBalance } = deps
+  const { getLedgerFromStorage, getBalance, getTokenBalance, whitelist } = deps
   try {
     const testResults = await match(type)
       .with(ConditionType.nft, () => validateNFTCondition(getLedgerFromStorage)(query))
       .with(ConditionType.xtzBalance, () => validateXTZBalanceCondition(getBalance)(query))
       .with(ConditionType.tokenBalance, () => validateTokenBalanceCondition(getTokenBalance)(query))
+      .with(ConditionType.whitelist, () => validateWhitelistCondition(whitelist)(query))
       .otherwise(always(Promise.resolve({ passed: false })))
 
     return {
@@ -116,4 +122,9 @@ export const _queryAccessControl = (deps: AccessControlQueryDependencies) => asy
   }
 }
 
-export const queryAccessControl = _queryAccessControl({ getLedgerFromStorage, getBalance, getTokenBalance })
+export const queryAccessControl = _queryAccessControl({
+  getLedgerFromStorage,
+  getBalance,
+  getTokenBalance,
+  whitelist: [],
+})

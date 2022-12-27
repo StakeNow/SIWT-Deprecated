@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import { equals, gt, gte, lt, lte } from 'ramda'
+import { complement, equals, gt, gte, includes, lt, lte } from 'ramda'
 
 import { Comparator } from './types'
 
@@ -27,4 +27,6 @@ export const COMPARISONS = {
   [Comparator.lte]: lte,
   [Comparator.gt]: gt,
   [Comparator.lt]: lt,
+  [Comparator.in]: includes,
+  [Comparator.notIn]: complement(includes),
 }
