@@ -1,4 +1,12 @@
-# **SIWT**
+# **SIWT DEPRECATED**
+
+
+----------------------------------------
+**ATTENTION:**
+
+This repository is now deprecated and replaced by a Nx mono repository under [github.com/StakeNow/SIWT](https://github.com/StakeNow/SIWT). The change has been conducted as part of the [first milestone](https://forum.tezosagora.org/t/sign-in-with-tezos-siwt/4930) of the Tezos Foundation grant for SIWT. You can get in touch with the developers through the [StakeNow Discord](https://discord.gg/BbBQf9gEWF).
+
+---------------------------------------
 
 Sign In With Tezos (SIWT) is a library that supports the development of your decentralized application (dApp) by
 - **proving** the users ownership of the private key to the address the user signs in with,
